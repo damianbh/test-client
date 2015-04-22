@@ -1,0 +1,13 @@
+<div class="non-invasive-loader" ng-if="Home.loaderSvc.getNonInvasiveVisible()"></div>
+<div class="invasive-loader" ng-if="Home.loaderSvc.getInvasiveVisible()">
+  <i class="icon-spinner10"></i>
+</div>
+
+<active-list maincls="'main-bar list-inline'" list="Home.list" img-src="'/assets/logo.png'"></active-list>
+<div ui-view></div>
+<div class="main-footer">
+
+        <span class="main-footer-text pull-left">&copy;
+          2015  All Rights Reserved  </span>
+
+</div>
