@@ -100,9 +100,10 @@ angular.module('testClientGulp')
     $urlRouterProvider.otherwise('/employees');
 
 
-    self.$get = function ($state, loader, $rootScope) {
+    self.$get = function ($state, loader, $rootScope, ModalService) {
       $rootScope.$on('$stateChangeStart',
         function (event, toState, toParams, fromState, fromParams) {
+          ModalService.closeAll();
           loader.nonInvasiveVisible();
         }
       );
