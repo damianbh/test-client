@@ -1,0 +1,57 @@
+<div class="modal-fade">
+  <div class="modal-overlay animated zoomIn modify-dialog">
+    <div class="row">
+      <div class="col-xs-10 main-title">{{ ModalLogin.title}}</div>
+      <div class="col-xs-2" ng-if="ModalLogin.canClose"><i ng-click="ModalLogin.on.close('cancel')"
+                                                                class="icon-cross"></i></div>
+    </div>
+
+
+    <form name="loginForm" role="form" novalidate=""
+          ng-submit="ModalLogin.on.doLogin(loginForm.$valid)">
+
+
+      <div class="form-group"
+           ng-class="{'has-error': ((loginForm.$submitted || loginForm.name.$touched) && loginForm.name.$invalid),'has-success':loginForm.name.$valid}">
+        <div class="errors" ng-messages="loginForm.name.$error"
+             ng-if="loginForm.$submitted || loginForm.name.$touched"
+             ng-messages-include="/views/errors.html">
+
+        </div>
+        <label class="control-label" for="name">User</label>
+        <input ms-focus="true" type="text" class="form-control" id="name" name="name"
+               placeholder="Please enter User Name"
+               ng-model="ModalLogin.model.name" required>
+
+
+      </div>
+
+      <div class="form-group"
+           ng-class="{'has-error': ((loginForm.$submitted || loginForm.password.$touched) && loginForm.password.$invalid),'has-success':loginForm.password.$valid}">
+        <div class="errors" ng-messages="loginForm.password.$error"
+             ng-if="loginForm.$submitted || loginForm.password.$touched"
+             ng-messages-include="/views/errors.html">
+
+        </div>
+        <label class="control-label" for="password">Password</label>
+        <input type="password" class="form-control" id="password" name="password"
+               placeholder="Please enter Password"
+               ng-model="ModalLogin.model.password" required>
+
+      </div>
+
+      <div class="row toolbar">
+        <div class="col-xs-12">
+          <button type="submit" class="btn btn-primary pull-right">Login</button>
+          <button ng-if="ModalLogin.canClose" type="button" class="btn btn-default pull-right"
+                  style="margin-right: 10px;"
+                  ng-click="ModalLogin.on.close('cancel')">Cancel
+          </button>
+
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+</div>

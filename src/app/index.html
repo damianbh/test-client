@@ -21,9 +21,9 @@
 </head>
 <body>
 <div class="container main-container" ui-view>
-  <div class="startup-loader">
-    <i class="icon-spinner10"></i>
-  </div>
+  <!--<div class="startup-loader">-->
+    <!--<i class="icon-spinner10"></i>-->
+  <!--</div>-->
 </div>
 <!-- inject:vendor:js -->
 <script src="/angular/angular.js"></script>
@@ -49,8 +49,10 @@
 <script src="/controllers/clients/ModalClientViewCtrl.js"></script>
 <script src="/controllers/clients/ModalClientCtrl.js"></script>
 <script src="/controllers/clients/ClientsCtrl.js"></script>
+<script src="/services/security.js"></script>
 <script src="/services/routing.js"></script>
 <script src="/services/loader.js"></script>
+<script src="/services/interceptor.js"></script>
 <script src="/services/errorService.js"></script>
 <script src="/services/config.js"></script>
 <script src="/services/callServer.js"></script>
@@ -62,8 +64,10 @@
 <script src="/directives/stSelectedRow.js"></script>
 <script src="/directives/focus.js"></script>
 <script src="/directives/activeList.js"></script>
+<script src="/controllers/ModalLoginCtrl.js"></script>
 <script src="/controllers/ModalCtrl.js"></script>
 <script src="/controllers/HomeCtrl.js"></script>
+<script src="/controllers/BaseCtrl.js"></script>
 <script src="/angular-modal-service/angular-modal-service.js"></script>
 <script src="/test-client-gulp-templates.js"></script>
 <!-- endinject -->

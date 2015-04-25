@@ -44,7 +44,9 @@ angular.module('testClientGulp')
       '<span ng-if="item.label">{{ item.label }}</span>' +
       '</a>' +
       '</li>' +
-        '<img ng-if="imgSrc" class="pull-right" style="margin-right: 20px;" height="55px" ng-src="{{imgSrc}}" alt=""/>'+
+
+      '<img ng-if="imgSrc" class="pull-right" style="margin-right: 20px;margin-top: -3px;" height="55px" ng-src="{{imgSrc}}" alt=""/>' +
+
       '</ul>',
       restrict: 'E',
       scope: {

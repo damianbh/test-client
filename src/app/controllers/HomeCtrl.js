@@ -1,4 +1,3 @@
-
 /**
  * @ngdoc function
  * @name testClientGulp.controller:MainCtrl
@@ -32,6 +31,4 @@ angular.module('testClientGulp')
         label: 'Providers'
       }
     ];
-
-    self.loaderSvc = loader;
   });
