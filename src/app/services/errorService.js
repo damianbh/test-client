@@ -90,7 +90,7 @@ angular.module('testClientGulp')
 
     self.showError = function (response, errorExt) {
 
-      if (response.status === 401) return;
+      //if (response.status === 401) return;
       var
         message;
 

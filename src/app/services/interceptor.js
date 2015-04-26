@@ -51,28 +51,28 @@ angular.module('testClientGulp')
           canClose = true;
         }
         switch (resp.status) {
-          case 401:
-            return ModalService.showModal({
-              templateUrl: '/views/modalLogin.html',
-              controller: 'ModalLoginCtrl as ModalLogin',
-
-              inputs: {
-                canClose: canClose
-              }
-            }).then(function (modal) {
-              return modal.close.then(function (result) {
-                switch (result) {
-                  case 'logged':
-                    return $http(resp.config);
-                    break;
-
-                  default:
-                    return $q.reject(resp);
-                    break;
-                }
-              });
-            });
-            break;
+          //case 401:
+          //  return ModalService.showModal({
+          //    templateUrl: '/views/modalLogin.html',
+          //    controller: 'ModalLoginCtrl as ModalLogin',
+          //
+          //    inputs: {
+          //      canClose: canClose
+          //    }
+          //  }).then(function (modal) {
+          //    return modal.close.then(function (result) {
+          //      switch (result) {
+          //        case 'logged':
+          //          return $http(resp.config);
+          //          break;
+          //
+          //        default:
+          //          return $q.reject(resp);
+          //          break;
+          //      }
+          //    });
+          //  });
+          //  break;
           case 400:
             return $q.reject(resp);
             break;

@@ -18,18 +18,18 @@ angular.module('testClientGulp')
         name: 'base',
         abstract: true,
         controller: 'BaseCtrl as Base',
-        templateUrl: '/views/base.html',
-        resolve: {
-          resolvedSecurity: ['config', '$http', 'security', function (config, $http, security) {
-            return $http.get(config.CAS_URL + '/validate', {
-              loginDlgConf: {
-                canClose: false
-              }
-            }).then(function (resp) {
-              security.setUserData(resp.data);
-            })
-          }]
-        }
+        templateUrl: '/views/base.html'
+        //, resolve: {
+        //  resolvedSecurity: ['security', function (security) {
+        //    return security.$promise
+        //  }]
+        //}
+      },
+      login: {
+        name: 'base.login',
+        url: '^/login',
+        controller: 'LoginCtrl as Login',
+        templateUrl: '/views/login/login.html'
       },
       home: {
         name: 'base.home',

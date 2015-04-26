@@ -6,24 +6,15 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('ModalLoginCtrl', function ($scope, loader, $http, security, config, canClose, zIndex, close) {
+  .controller('LoginCtrl', function ($scope, loader, $http, security, config, routing) {
     'use strict';
 
     var
       self = this;
 
-    $scope.zIndex = zIndex;
     self.model = {};
-    self.canClose = canClose;
 
-    self.title = 'Please Enter your Credentials';
-
-    loader.invasiveInvisible();
-    //self.offices = $resource(API_URL + "api/offices/:id").query();
     self.on = {
-      close: function (action) {
-        close(action);
-      },
       doLogin: function (valid) {
 
         if (self.saving || !valid) {
@@ -31,10 +22,10 @@ angular.module('testClientGulp')
         }
 
         self.saving = true;
-
+        loader.invasiveVisible();
         return $http.post(config.CAS_URL + '/login', self.model).then(function (resp) {
-          security.setUserData(resp.data);
-          close('logged');
+          security.setSecurityData(resp.data);
+          return routing.go2State('help');
         }).catch(function (resp) {
           switch (resp.status) {
             case 400:
@@ -51,6 +42,7 @@ angular.module('testClientGulp')
           }
         }).finally(function () {
           self.saving = false;
+          loader.invasiveInvisible();
         });
       }
     };

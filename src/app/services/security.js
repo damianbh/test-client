@@ -1,12 +1,22 @@
 angular.module('testClientGulp')
-  .service('security', function ($q) {
+  .service('security', function ($http, errorService, config) {
     'use strict';
     var
       self = this,
-      userData;
+      userData = $security || {};
 
-    self.setUserData = function (newUserData) {
-      userData = newUserData;
+    //self.$promise = $http.get(config.CAS_URL + '/validate', {
+    //  doNotHandleErrors: true
+    //}).then(function (resp) {
+    //  userData = resp.data;
+    //}).catch(function (resp) {
+    //  if (resp.status !== 401) {
+    //    errorService.showError(resp);
+    //  }
+    //});
+
+    self.setSecurityData = function (newData) {
+      userData = newData;
     };
 
     self.getUserData = function () {

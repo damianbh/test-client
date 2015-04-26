@@ -534,10 +534,6 @@ $standard-icon-color-active, $standard-text-color-active) {
 
 }
 
-.modal-login-startup {
-  @include modal(gainsboro);
-}
-
 .modal-overlay {
   //  display: none;
   -moz-animation-duration: 0.3s;
@@ -738,5 +734,28 @@ $standard-icon-color-active, $standard-text-color-active) {
     font-weight: bold;
     display: block;
     margin: 10px;
+  }
+}
+
+.login-page {
+  .title {
+    color: #428bca;
+    @include font-bitter;
+  }
+  .lock {
+    display: block;
+    text-align: center;
+    .icon-lock {
+      font-size: 200px;
+      color: #428bca;
+    }
+  }
+  form {
+    position: relative;
+    //width: 500px;
+    padding: 40px;
+    background: white;
+    @include border-radius(5px);
+    border: 1px solid #428bca;
   }
 }

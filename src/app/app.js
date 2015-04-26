@@ -10,20 +10,27 @@ angular.module('testClientGulp', [
   'smart-table',
   'ui.select'
 ])
+  //.constant('DEFAULT_STATE', 'help')
   .config(function ($httpProvider) {
     'use strict';
     $httpProvider.interceptors.push('httpInterceptor');
-
-
+    
   })
   .run(function ($rootScope, routing, security, ModalService, loader) {
     'use strict';
     $rootScope.$on('$stateChangeStart',
       function (event, toState, toParams, fromState, fromParams) {
         ModalService.closeAll();
-        loader.nonInvasiveVisible();
-      }
-    );
+
+        if (toState.name !== 'base.login') {
+          if (!security.getTicket()) {
+            event.preventDefault();
+            routing.go2State('login');
+          } else {
+            loader.nonInvasiveVisible();
+          }
+        }
+      });
 
     $rootScope.$on('$stateChangeSuccess',
       function (event, toState, toParams, fromState, fromParams) {
@@ -58,19 +65,40 @@ angular.module('testClientGulp', [
     });
   }
 
-  var xhReq = createXMLHttpRequest();
-  xhReq.open('GET', '/assets/config.json', true);
-  xhReq.onreadystatechange = function () {
-    if (xhReq.readyState != 4) {
+  var xhReqConfig = createXMLHttpRequest();
+  xhReqConfig.open('GET', '/assets/config.json', true);
+  xhReqConfig.onreadystatechange = function () {
+    if (xhReqConfig.readyState != 4) {
       return;
     }
 
-    if (xhReq.status != 200) {
+    if (xhReqConfig.status != 200) {
       alert('Error Loading System Configuration');
       return;
     }
-    $config = angular.fromJson(xhReq.responseText);
-    bootstrapApplication();
+    $config = angular.fromJson(xhReqConfig.responseText);
+
+    var xhReqSecurity = createXMLHttpRequest();
+    xhReqSecurity.open('GET', $config.CAS_URL + '/validate', true);
+    xhReqSecurity.withCredentials = true;
+
+    xhReqSecurity.onreadystatechange = function () {
+      if (xhReqSecurity.readyState != 4) {
+        return;
+      }
+      $security = {};
+      switch (xhReqSecurity.status) {
+        case 200:
+          $security = angular.fromJson(xhReqSecurity.responseText);
+        case 401:
+          bootstrapApplication();
+          break;
+        default:
+          alert('Error Communicating with CAS Server. Please check your internet connection and CAS Server status.');
+          break;
+      }
+    };
+    xhReqSecurity.send(null);
   };
-  xhReq.send(null);
+  xhReqConfig.send(null);
 })();
