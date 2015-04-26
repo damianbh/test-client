@@ -1,4 +1,3 @@
-
 /**
  * @ngdoc function
  * @name testClientGulp.controller:AppCtrl
@@ -41,7 +40,9 @@ angular.module('testClientGulp')
           close('saved');
 
         }).catch(function (resp) {
-          errorService.formError(resp, $scope.clientForm);
+          if (resp.status === 400) {
+            errorService.formError(resp, $scope.clientForm);
+          }
         }).finally(function () {
           self.saving = false;
           loader.invasiveInvisible();

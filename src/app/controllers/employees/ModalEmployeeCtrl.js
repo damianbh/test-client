@@ -34,7 +34,9 @@ angular.module('testClientGulp')
           $rootScope.$broadcast('$saved-employee', employee, isEdit);
           close('saved');
         }).catch(function (resp) {
-          errorService.formError(resp, $scope.employeeForm);
+          if (resp.status === 400) {
+            errorService.formError(resp, $scope.employeeForm);
+          }
         }).finally(function () {
           self.saving = false;
           loader.invasiveInvisible();

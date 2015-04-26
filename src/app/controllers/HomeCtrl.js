@@ -66,7 +66,8 @@ angular.module('testClientGulp')
                 text: 'No'
               }
             },
-            message: 'You will be logged out of the Central Authorization Server which means you will be logged out of this and all other related Applications.'
+            message: 'You will be logged out of the Central Authorization Server which means' +
+            ' you will be logged out of this and all other Applications linked to this Authorization Server.'
           }
         }).then(function (modal) {
           modal.close.then(function (result) {

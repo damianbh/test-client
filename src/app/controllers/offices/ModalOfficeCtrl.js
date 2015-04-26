@@ -35,7 +35,9 @@ angular.module('testClientGulp')
           $rootScope.$broadcast('$saved-office', office, isEdit);
           close('saved');
         }).catch(function (resp) {
-          errorService.formError(resp, $scope.officeForm);
+          if (resp.status === 400) {
+            errorService.formError(resp, $scope.officeForm);
+          }
         }).finally(function () {
           loader.invasiveInvisible();
           self.saving = false;

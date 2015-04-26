@@ -84,8 +84,10 @@ angular.module('testClientGulp')
                 row.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
                 }).catch(function (resp) {
-                  if ((resp.status === 400) && _.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR') {
-                    resp.data.message = 'Office cannot be deleted because it has employees assigned';
+                  if (resp.status === 400) {
+                    if (_.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR') {
+                      resp.data.message = 'Office cannot be deleted because it has employees assigned';
+                    }
                     errorService.showError(resp);
                   }
 

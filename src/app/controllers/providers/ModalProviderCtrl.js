@@ -1,4 +1,3 @@
-
 /**
  * @ngdoc function
  * @name testClientGulp.controller:AppCtrl
@@ -34,7 +33,9 @@ angular.module('testClientGulp')
           $rootScope.$broadcast('$saved-provider', provider, isEdit);
           close('saved');
         }).catch(function (resp) {
-          errorService.formError(resp, $scope.providerForm);
+          if (resp.status === 400) {
+            errorService.formError(resp, $scope.providerForm);
+          }
         }).finally(function () {
           loader.invasiveInvisible();
           self.saving = false;
