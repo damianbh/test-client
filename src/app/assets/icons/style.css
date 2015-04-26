@@ -1,10 +1,10 @@
 @font-face {
 	font-family: 'icomoon';
-	src:url('fonts/icomoon.eot?-ag82xa');
-	src:url('fonts/icomoon.eot?#iefix-ag82xa') format('embedded-opentype'),
-		url('fonts/icomoon.woff?-ag82xa') format('woff'),
-		url('fonts/icomoon.ttf?-ag82xa') format('truetype'),
-		url('fonts/icomoon.svg?-ag82xa#icomoon') format('svg');
+	src:url('fonts/icomoon.eot?-431ssq');
+	src:url('fonts/icomoon.eot?#iefix-431ssq') format('embedded-opentype'),
+		url('fonts/icomoon.woff?-431ssq') format('woff'),
+		url('fonts/icomoon.ttf?-431ssq') format('truetype'),
+		url('fonts/icomoon.svg?-431ssq#icomoon') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -69,6 +69,10 @@
 
 .icon-eye:before {
 	content: "\e9ce";
+}
+
+.icon-question:before {
+	content: "\ea09";
 }
 
 .icon-plus:before {

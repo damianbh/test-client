@@ -97,6 +97,7 @@
               };
               closeFns.push(fnClose);
               zIndex++;
+
               //  If we have provided any inputs, pass them to the controller.
               if (options.inputs) {
                 for (var inputName in options.inputs) {
@@ -107,6 +108,11 @@
               if (!inputs['zIndex']) {
                 inputs['zIndex'] = zIndex;
               }
+
+              modalScope.zIndexStyle = {
+                'z-index': inputs['zIndex']
+              };
+
 
               //  Create the controller, explicitly specifying the scope to use.
               var modalController = $controller(controller, inputs),

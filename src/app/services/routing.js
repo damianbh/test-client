@@ -20,13 +20,8 @@ angular.module('testClientGulp')
         controller: 'BaseCtrl as Base',
         templateUrl: '/views/base.html',
         resolve: {
-          resolvedConfig: ['config', 'errorService', function (config, errorService) {
-            return config.$promise.catch(function (resp) {
-              errorService.showError(resp, {
-                404: 'System Configuration Not Found ' + resp.config.url
-              });
-              throw new Error('Error Loading System Configuration');
-            })
+          resolvedConfig: ['config', 'errorService', function (config) {
+            return config.$promise
           }],
           resolvedSecurity: ['resolvedConfig', '$http', 'security', function (resolvedConfig, $http, security) {
             return $http.get(resolvedConfig.CAS_URL + '/validate', {
@@ -44,6 +39,12 @@ angular.module('testClientGulp')
         abstract: true,
         controller: 'HomeCtrl as Home',
         templateUrl: '/views/home.html'
+      },
+      help: {
+        name: 'base.home.help',
+        url: '^/help',
+        controller: 'HelpCtrl as Help',
+        templateUrl: '/views/help/help.html'
       },
       employees: {
         name: 'base.home.employees',
@@ -88,7 +89,7 @@ angular.module('testClientGulp')
     }
 
     //$locationProvider.hashPrefix('!');
-    $urlRouterProvider.otherwise('/employees');
+    $urlRouterProvider.otherwise('/help');
 
 
     self.$get = function ($state, loader, $rootScope, ModalService, security) {

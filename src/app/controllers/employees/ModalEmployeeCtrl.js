@@ -49,9 +49,12 @@ angular.module('testClientGulp')
           };
 
         $scope.offices = OfficeModel.query(params);
-        return $scope.offices.$promise.catch(function (resp) {
-          errorService.showError(resp);
-        });
+        return $scope.offices.$promise;
+        //  .catch(function (resp) {
+        //  errorService.showError(resp);
+        //});
+
+
         //return $http.get(
         //  'http://maps.googleapis.com/maps/api/geocode/json',
         //  {params: params}

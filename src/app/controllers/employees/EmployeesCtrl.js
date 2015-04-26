@@ -6,7 +6,7 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('EmployeesCtrl', function ($scope, callServer, EmployeeModel, ModalService, $timeout, loader, errorService) {
+  .controller('EmployeesCtrl', function ($scope, callServer, EmployeeModel, ModalService, $timeout, loader) {
     'use strict';
 
     var ctrl = this;
@@ -69,9 +69,11 @@ angular.module('testClientGulp')
               employee: employee
             }
           });
-        }).catch(function (resp) {
-          errorService.showError(resp);
-        }).finally(function () {
+        })
+        //  .catch(function (resp) {
+        //  errorService.showError(resp);
+        //})
+          .finally(function () {
           loader.invasiveInvisible();
         });
 
@@ -101,9 +103,11 @@ angular.module('testClientGulp')
                 loader.invasiveVisible();
                 employee.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
-                }).catch(function (resp) {
-                  errorService.showError(resp);
-                }).finally(function () {
+                })
+                //  .catch(function (resp) {
+                //  errorService.showError(resp);
+                //})
+                  .finally(function () {
                   loader.invasiveInvisible();
                 });
                 break;

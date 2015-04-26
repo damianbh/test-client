@@ -1,13 +1,18 @@
 angular.module('testClientGulp')
-  .service('config', function ($q, $http) {
+  .service('config', function ($q, $http, errorService) {
     'use strict';
 
     var
       self = this;
 
-    self.$promise = $http.get('/assets/config.json').then(function (resp) {
+    self.$promise = $http.get('/assets/config.json', {doNotHandleErrors: true}).then(function (resp) {
       _.extend(self, resp.data);
       return self;
+    }).catch(function (resp) {
+      errorService.showError(resp, {
+        404: 'System Configuration Not Found ' + resp.config.url
+      });
+      throw new Error('Error Loading System Configuration');
     });
 
   });

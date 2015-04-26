@@ -1,5 +1,5 @@
 angular.module('testClientGulp')
-  .factory('callServer', function (config, $timeout, errorService) {
+  .factory('callServer', function (config) {
     'use strict';
 
     return function (opts, tableState, api) {
@@ -56,7 +56,7 @@ angular.module('testClientGulp')
       }).$promise.catch(function (resp) {
           ctrl.smartTable.isLoading = false;
           tableState.pagination.numberOfPages = 0;
-          errorService.showError(resp);
+          //errorService.showError(resp);
         });
     };
   });

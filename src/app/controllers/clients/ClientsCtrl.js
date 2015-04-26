@@ -6,7 +6,7 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('ClientsCtrl', function ($scope, callServer, config, ClientModel, loader, errorService, ModalService, ProviderModel, $q) {
+  .controller('ClientsCtrl', function ($scope, callServer, config, ClientModel, loader, ModalService, ProviderModel, $q) {
     'use strict';
     var ctrl = this;
 
@@ -39,8 +39,6 @@ angular.module('testClientGulp')
               providers: providers
             }
           });
-        }).catch(function (resp) {
-          errorService.showError(resp);
         }).finally(function () {
           loader.invasiveInvisible();
         });
@@ -59,9 +57,11 @@ angular.module('testClientGulp')
               client: client
             }
           });
-        }).catch(function (resp) {
-          errorService.showError(resp);
-        }).finally(function () {
+        })
+        //  .catch(function (resp) {
+        //  errorService.showError(resp);
+        //})
+          .finally(function () {
           loader.invasiveInvisible();
         });
       },
@@ -79,9 +79,11 @@ angular.module('testClientGulp')
               providers: providers
             }
           });
-        }).catch(function (resp) {
-          errorService.showError(resp);
-        }).finally(function () {
+        })
+        //  .catch(function (resp) {
+        //  errorService.showError(resp);
+        //})
+          .finally(function () {
           loader.invasiveInvisible();
         });
 
@@ -111,9 +113,11 @@ angular.module('testClientGulp')
                 loader.invasiveVisible();
                 client.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
-                }).catch(function (resp) {
-                  errorService.showError(resp);
-                }).finally(function () {
+                })
+                //  .catch(function (resp) {
+                //  errorService.showError(resp);
+                //})
+                  .finally(function () {
                   loader.invasiveInvisible();
                 });
                 break;

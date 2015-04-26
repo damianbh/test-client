@@ -50,11 +50,13 @@ angular.module('testClientGulp')
               provider: provider
             }
           });
-        }).catch(function (resp) {
-          errorService.showError(resp);
-        }).finally(function () {
-          loader.invasiveInvisible();
-        });
+        })
+          //  .catch(function (resp) {
+          //  errorService.showError(resp);
+          //})
+          .finally(function () {
+            loader.invasiveInvisible();
+          });
 
       },
       deleteOptsClick: function (row) {
@@ -83,10 +85,11 @@ angular.module('testClientGulp')
                 row.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
                 }).catch(function (resp) {
-                  if (_.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR') {
+                  if ((resp.status === 400) && _.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR') {
                     resp.data.message = 'Provider cannot be deleted because it has clients assigned';
+                    errorService.showError(resp);
                   }
-                  errorService.showError(resp);
+
                 }).finally(function () {
                   loader.invasiveInvisible();
                 });

@@ -5,7 +5,7 @@ angular.module('testClientGulp')
     var
       self = this,
       codes = {
-        0: 'General Network Error. Please check your internet connection to Api Server',
+        0: 'General Network Error. Please check your internet connection, API Server status and CAS Server status.',
         100: 'CONTINUE',
         101: 'SWITCHING_PROTOCOLS',
         200: 'OK',
@@ -89,6 +89,8 @@ angular.module('testClientGulp')
     };
 
     self.showError = function (response, errorExt) {
+
+      if (response.status === 401) return;
       var
         message;
 

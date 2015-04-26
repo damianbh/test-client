@@ -25,7 +25,7 @@ angular.module('testClientGulp')
       office.$isSelected = true;
     });
 
-    ctrl.callServer = _.partial(callServer, {ctrl:ctrl, Resource:OfficeModel, qf:'name'});
+    ctrl.callServer = _.partial(callServer, {ctrl: ctrl, Resource: OfficeModel, qf: 'name'});
     ctrl.on = {
       newOptsClick: function () {
         //console.log($scope);
@@ -49,11 +49,13 @@ angular.module('testClientGulp')
               office: office
             }
           });
-        }).catch(function (resp) {
-          errorService.showError(resp);
-        }).finally(function () {
-          loader.invasiveInvisible();
-        });
+        })
+          //  .catch(function (resp) {
+          //  errorService.showError(resp);
+          //})
+          .finally(function () {
+            loader.invasiveInvisible();
+          });
 
       },
       deleteOptsClick: function (row) {
@@ -82,10 +84,11 @@ angular.module('testClientGulp')
                 row.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
                 }).catch(function (resp) {
-                  if (_.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR') {
+                  if ((resp.status === 400) && _.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR') {
                     resp.data.message = 'Office cannot be deleted because it has employees assigned';
+                    errorService.showError(resp);
                   }
-                  errorService.showError(resp);
+
                 }).finally(function () {
                   loader.invasiveInvisible();
                 });

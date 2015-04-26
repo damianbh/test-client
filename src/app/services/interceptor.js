@@ -44,6 +44,7 @@ angular.module('testClientGulp')
         //}
         var
           ModalService = $injector.get('ModalService'),
+          errorService = $injector.get('errorService'),
           $http = $injector.get('$http'),
           canClose = (resp.config.loginDlgConf && resp.config.loginDlgConf.canClose);
         if (_.isUndefined(canClose)) {
@@ -54,6 +55,7 @@ angular.module('testClientGulp')
             return ModalService.showModal({
               templateUrl: '/views/modalLogin.html',
               controller: 'ModalLoginCtrl as ModalLogin',
+
               inputs: {
                 canClose: canClose
               }
@@ -71,7 +73,13 @@ angular.module('testClientGulp')
               });
             });
             break;
+          case 400:
+            return $q.reject(resp);
+            break;
           default:
+            if (!resp.config.doNotHandleErrors) {
+              errorService.showError(resp);
+            }
             return $q.reject(resp);
             break;
         }
