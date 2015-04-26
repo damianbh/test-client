@@ -6,7 +6,7 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('ModalLoginCtrl', function ($scope, loader, $http, config, security, canClose, zIndex, close) {
+  .controller('ModalLoginCtrl', function ($scope, loader, $http, security, config, canClose, zIndex, close) {
     'use strict';
 
     var

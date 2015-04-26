@@ -20,11 +20,8 @@ angular.module('testClientGulp')
         controller: 'BaseCtrl as Base',
         templateUrl: '/views/base.html',
         resolve: {
-          resolvedConfig: ['config', 'errorService', function (config) {
-            return config.$promise
-          }],
-          resolvedSecurity: ['resolvedConfig', '$http', 'security', function (resolvedConfig, $http, security) {
-            return $http.get(resolvedConfig.CAS_URL + '/validate', {
+          resolvedSecurity: ['config', '$http', 'security', function (config, $http, security) {
+            return $http.get(config.CAS_URL + '/validate', {
               loginDlgConf: {
                 canClose: false
               }

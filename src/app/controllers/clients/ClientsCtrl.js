@@ -6,7 +6,7 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('ClientsCtrl', function ($scope, callServer, config, ClientModel, loader, ModalService, ProviderModel, $q) {
+  .controller('ClientsCtrl', function ($scope, callServer, ClientModel, loader, ModalService, ProviderModel, $q) {
     'use strict';
     var ctrl = this;
 

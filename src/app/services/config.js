@@ -1,22 +1,23 @@
 angular.module('testClientGulp')
-  .service('config', function ($q, $http, errorService) {
+  .factory('config', function () {
     'use strict';
 
-    var
-      self = this;
-
-    self.$promise = $http.get('/assets/config.json', {doNotHandleErrors: true}).then(function (resp) {
-      _.extend(self, resp.data);
-      return self;
-    }).catch(function (resp) {
-      errorService.showError(resp, {
-        404: 'System Configuration Not Found ' + resp.config.url
-      });
-      throw new Error('Error Loading System Configuration');
-    });
+    return $config;
 
   });
 
+//var
+//  self = this;
+//
+//self.$promise = $http.get('/assets/config.json', {doNotHandleErrors: true}).then(function (resp) {
+//  _.extend(self, resp.data);
+//  return self;
+//}).catch(function (resp) {
+//  errorService.showError(resp, {
+//    404: 'System Configuration Not Found ' + resp.config.url
+//  });
+//  throw new Error('Error Loading System Configuration');
+//});
 
 //, deferred = $q.defer(),
 //oReq = new XMLHttpRequest();

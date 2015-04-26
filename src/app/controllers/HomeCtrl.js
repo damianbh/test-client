@@ -6,7 +6,7 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('HomeCtrl', function ($scope, config, $http, loader, ModalService, security) {
+  .controller('HomeCtrl', function ($scope, $http, loader, ModalService, security, config) {
     'use strict';
     var
       self = this,

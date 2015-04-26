@@ -45,8 +45,10 @@
   100% {
     -ms-transform: rotate(360deg); } }
 
-.loader, .startup-loader .icon-spinner10, .invasive-loader .icon-spinner10, .grid-loader {
+.startup-loader .icon-spinner10 {
   font-size: 40px;
+  left: 50%;
+  margin-left: -20px;
   color: #428bca;
   animation: rotation linear 0.8s;
   animation-iteration-count: infinite;
@@ -57,13 +59,9 @@
   -o-animation: rotation linear 0.8s;
   -o-animation-iteration-count: infinite;
   -ms-animation: rotation linear 0.8s;
-  -ms-animation-iteration-count: infinite; }
-
-.startup-loader .icon-spinner10 {
+  -ms-animation-iteration-count: infinite;
   position: fixed;
   top: 50%;
-  left: 50%;
-  margin-left: -20px;
   margin-top: -20px; }
 
 .invasive-loader:before {
@@ -74,19 +72,44 @@
   bottom: 0;
   z-index: 500;
   right: 0;
-  background: rgba(100, 100, 100, 0.3); }
+  background: rgba(100, 100, 100, 0.1); }
 .invasive-loader .icon-spinner10 {
-  position: fixed;
-  top: 50%;
+  font-size: 40px;
   left: 50%;
   margin-left: -20px;
+  color: #428bca;
+  animation: rotation linear 0.8s;
+  animation-iteration-count: infinite;
+  -webkit-animation: rotation linear 0.8s;
+  -webkit-animation-iteration-count: infinite;
+  -moz-animation: rotation linear 0.8s;
+  -moz-animation-iteration-count: infinite;
+  -o-animation: rotation linear 0.8s;
+  -o-animation-iteration-count: infinite;
+  -ms-animation: rotation linear 0.8s;
+  -ms-animation-iteration-count: infinite;
+  display: inline-block !important;
+  position: fixed;
+  top: 50%;
   margin-top: -20px;
   z-index: 501; }
 
 .grid-loader {
-  position: relative;
+  font-size: 40px;
   left: 50%;
-  margin-left: -20px; }
+  margin-left: -20px;
+  color: #428bca;
+  animation: rotation linear 0.8s;
+  animation-iteration-count: infinite;
+  -webkit-animation: rotation linear 0.8s;
+  -webkit-animation-iteration-count: infinite;
+  -moz-animation: rotation linear 0.8s;
+  -moz-animation-iteration-count: infinite;
+  -o-animation: rotation linear 0.8s;
+  -o-animation-iteration-count: infinite;
+  -ms-animation: rotation linear 0.8s;
+  -ms-animation-iteration-count: infinite;
+  position: relative; }
 
 .search-ctrol {
   width: 100%; }
@@ -133,10 +156,10 @@ html, body {
 .main-bar {
   margin-left: -15px;
   margin-right: -15px;
+  border-top: 1px solid #9a9a9a;
   background: #333333; }
   .main-bar .active {
     background: url("/assets/background.png") #f7f7f7;
-    border-top: 3px solid #428bca;
     border-left: none;
     border-right: none; }
     .main-bar .active i {
@@ -145,7 +168,8 @@ html, body {
       color: #333333; }
   .main-bar li {
     margin: 0;
-    padding: 0; }
+    padding: 0;
+    min-width: 75px; }
     .main-bar li a {
       display: block; }
       .main-bar li a span {
@@ -157,7 +181,7 @@ html, body {
         font-size: 14px;
         font-weight: bold; }
       .main-bar li a i {
-        margin-top: 5px;
+        margin-top: 8px;
         font-size: 20px;
         display: inline-block;
         width: 100%;
@@ -255,7 +279,7 @@ html, body {
 .non-invasive-loader {
   position: absolute;
   height: 3px;
-  background-color: #428bca;
+  background-color: white;
   animation: changewidthloader linear 1.5s;
   animation-iteration-count: infinite;
   -webkit-animation: changewidthloader linear 1.5s;
@@ -285,9 +309,9 @@ html, body {
   line-height: 30px;
   background: #428bca;
   color: white;
-  -webkit-border-radius: 20px !important;
-  -moz-border-radius: 20px !important;
-  border-radius: 20px !important;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  border-radius: 20px;
   text-align: center;
   text-decoration: none;
   cursor: pointer;
@@ -319,44 +343,56 @@ html, body {
   z-index: 90;
   margin-bottom: 30px;
   overflow-y: auto; }
-  .modal-fade .modal-overlay {
-    -moz-animation-duration: 0.3s;
-    -webkit-animation-duration: 0.3s;
-    animation-duration: 0.3s;
-    -webkit-border-radius: 4px !important;
-    -moz-border-radius: 4px !important;
-    border-radius: 4px !important;
-    position: relative;
-    top: 25%;
-    padding: 20px;
-    background-color: #ffffff;
-    margin-bottom: 30px; }
-    .modal-fade .modal-overlay .icon-cross {
-      float: right;
-      cursor: pointer;
-      color: #b3b3b3; }
-      .modal-fade .modal-overlay .icon-cross:hover {
-        color: #808080; }
-    .modal-fade .modal-overlay .title {
-      font-family: 'Bitter', sans-serif;
-      font-size: 22px;
-      color: #428bca; }
-    .modal-fade .modal-overlay .title-error {
-      font-family: 'Bitter', sans-serif;
-      font-size: 22px;
-      color: #a94442; }
-    .modal-fade .modal-overlay .message-margin {
-      margin-top: 30px; }
-    .modal-fade .modal-overlay .message {
-      font-family: 'Source Sans Pro', sans-serif;
-      color: #333333;
-      font-size: 14px; }
-    .modal-fade .modal-overlay .toolbar {
-      margin-top: 30px; }
-      .modal-fade .modal-overlay .toolbar button {
-        min-width: 80px; }
-    .modal-fade .modal-overlay .margin-title {
-      margin-top: -10px; }
+
+.modal-login-startup {
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: gainsboro;
+  width: 100%;
+  height: 100%;
+  z-index: 90;
+  margin-bottom: 30px;
+  overflow-y: auto; }
+
+.modal-overlay {
+  -moz-animation-duration: 0.3s;
+  -webkit-animation-duration: 0.3s;
+  animation-duration: 0.3s;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  position: relative;
+  top: 25%;
+  padding: 20px;
+  background-color: #ffffff;
+  margin-bottom: 30px; }
+  .modal-overlay .icon-cross {
+    float: right;
+    cursor: pointer;
+    color: #b3b3b3; }
+    .modal-overlay .icon-cross:hover {
+      color: #808080; }
+  .modal-overlay .title {
+    font-family: 'Bitter', sans-serif;
+    font-size: 22px;
+    color: #428bca; }
+  .modal-overlay .title-error {
+    font-family: 'Bitter', sans-serif;
+    font-size: 22px;
+    color: #a94442; }
+  .modal-overlay .message-margin {
+    margin-top: 30px; }
+  .modal-overlay .message {
+    font-family: 'Source Sans Pro', sans-serif;
+    color: #333333;
+    font-size: 14px; }
+  .modal-overlay .toolbar {
+    margin-top: 30px; }
+    .modal-overlay .toolbar button {
+      min-width: 80px; }
+  .modal-overlay .margin-title {
+    margin-top: -10px; }
 
 .main-footer {
   position: absolute;
@@ -376,9 +412,9 @@ html, body {
 
 .modal-confirm {
   top: 10% !important;
-  width: 800px;
+  width: 600px;
   left: 50%;
-  margin-left: -400px; }
+  margin-left: -300px; }
   .modal-confirm .main-title {
     font-family: 'Bitter', sans-serif;
     font-size: 22px;
@@ -387,9 +423,9 @@ html, body {
 
 .modal-error {
   top: 10% !important;
-  width: 800px;
+  width: 600px;
   left: 50%;
-  margin-left: -400px; }
+  margin-left: -300px; }
   .modal-error .main-title {
     font-family: 'Bitter', sans-serif;
     font-size: 22px;
@@ -418,7 +454,7 @@ html, body {
     color: #428bca;
     margin-bottom: 10px; }
   .client-view-dialog .toolbar {
-    margin-top: -25px !important; }
+    margin-top: -25px; }
   .client-view-dialog .table tfoot tr td {
     padding: 10px 0 0; }
     .client-view-dialog .table tfoot tr td .pagination {
@@ -446,3 +482,46 @@ html, body {
     text-transform: capitalize;
     text-decoration: underline;
     display: block; }
+
+.main-header {
+  height: 36px;
+  position: relative;
+  margin-right: -15px;
+  margin-left: -15px;
+  background: #428bca;
+  white-space: nowrap; }
+  .main-header .user-photo {
+    -webkit-border-radius: 17px;
+    -moz-border-radius: 17px;
+    border-radius: 17px;
+    overflow: hidden;
+    height: 34px;
+    width: 34px;
+    margin: 2px 5px 2px 15px;
+    display: inline-block;
+    vertical-align: middle; }
+    .main-header .user-photo img {
+      vertical-align: middle;
+      height: 34px;
+      width: 34px; }
+  .main-header .welcome {
+    font-family: 'Bitter', sans-serif;
+    display: inline-block;
+    vertical-align: middle;
+    color: white;
+    font-size: 14px; }
+  .main-header .icon-cancel-circle {
+    line-height: 35px;
+    font-size: 25px;
+    color: white;
+    margin-right: 15px; }
+    .main-header .icon-cancel-circle:hover {
+      color: #cccccc;
+      cursor: pointer; }
+
+.help-tab .help-tab-title {
+  font-family: 'Bitter', sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  display: block;
+  margin: 10px; }

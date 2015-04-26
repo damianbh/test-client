@@ -1,4 +1,3 @@
-
 angular.module('testClientGulp', [
   'ngAnimate',
   'ngSanitize',
@@ -11,10 +10,70 @@ angular.module('testClientGulp', [
   'smart-table',
   'ui.select'
 ])
-  .config(function () {
+  .config(["$httpProvider", function ($httpProvider) {
     'use strict';
+    $httpProvider.interceptors.push('httpInterceptor');
 
-  });
+
+  }])
+  .run(["$rootScope", "routing", "security", "ModalService", "loader", function ($rootScope, routing, security, ModalService, loader) {
+    'use strict';
+    $rootScope.$on('$stateChangeStart',
+      function (event, toState, toParams, fromState, fromParams) {
+        ModalService.closeAll();
+        loader.nonInvasiveVisible();
+      }
+    );
+
+    $rootScope.$on('$stateChangeSuccess',
+      function (event, toState, toParams, fromState, fromParams) {
+        loader.nonInvasiveInvisible();
+      }
+    );
+
+    $rootScope.$on('$stateChangeError',
+      function (event, toState, toParams, fromState, fromParams) {
+        loader.nonInvasiveInvisible();
+      }
+    );
+  }]);
+
+(function bootstrap() {
+  function createXMLHttpRequest() {
+    try {
+      return new XMLHttpRequest();
+    } catch (e) {
+    }
+    try {
+      return new ActiveXObject("Msxml2.XMLHTTP");
+    } catch (e) {
+    }
+    alert("XMLHttpRequest not supported");
+    return null;
+  }
+
+  function bootstrapApplication() {
+    angular.element(document).ready(function () {
+      angular.bootstrap(document, ["testClientGulp"]);
+    });
+  }
+
+  var xhReq = createXMLHttpRequest();
+  xhReq.open("GET", "/assets/config.json", true);
+  xhReq.onreadystatechange = function () {
+    if (xhReq.readyState != 4) {
+      return;
+    }
+
+    if (xhReq.status != 200) {
+      alert('Error Loading System Configuration');
+      return;
+    }
+    $config = angular.fromJson(xhReq.responseText);
+    bootstrapApplication();
+  };
+  xhReq.send(null);
+})();
 
 /**
  * @ngdoc function
@@ -68,11 +127,13 @@ angular.module('testClientGulp')
               provider: provider
             }
           });
-        }).catch(function (resp) {
-          errorService.showError(resp);
-        }).finally(function () {
-          loader.invasiveInvisible();
-        });
+        })
+          //  .catch(function (resp) {
+          //  errorService.showError(resp);
+          //})
+          .finally(function () {
+            loader.invasiveInvisible();
+          });
 
       },
       deleteOptsClick: function (row) {
@@ -101,10 +162,13 @@ angular.module('testClientGulp')
                 row.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
                 }).catch(function (resp) {
-                  if (_.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR') {
-                    resp.data.message = 'Provider cannot be deleted because it has clients assigned';
+                  if (resp.status === 400)  {
+                    if (_.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR'){
+                      resp.data.message = 'Provider cannot be deleted because it has clients assigned';
+                    }
+                    errorService.showError(resp);
                   }
-                  errorService.showError(resp);
+
                 }).finally(function () {
                   loader.invasiveInvisible();
                 });
@@ -120,7 +184,6 @@ angular.module('testClientGulp')
 
 
   }]);
-
 
 /**
  * @ngdoc function
@@ -157,7 +220,9 @@ angular.module('testClientGulp')
           $rootScope.$broadcast('$saved-provider', provider, isEdit);
           close('saved');
         }).catch(function (resp) {
-          errorService.formError(resp, $scope.providerForm);
+          if (resp.status === 400) {
+            errorService.formError(resp, $scope.providerForm);
+          }
         }).finally(function () {
           loader.invasiveInvisible();
           self.saving = false;
@@ -195,7 +260,7 @@ angular.module('testClientGulp')
       office.$isSelected = true;
     });
 
-    ctrl.callServer = _.partial(callServer, {ctrl:ctrl, Resource:OfficeModel, qf:'name'});
+    ctrl.callServer = _.partial(callServer, {ctrl: ctrl, Resource: OfficeModel, qf: 'name'});
     ctrl.on = {
       newOptsClick: function () {
         //console.log($scope);
@@ -219,11 +284,13 @@ angular.module('testClientGulp')
               office: office
             }
           });
-        }).catch(function (resp) {
-          errorService.showError(resp);
-        }).finally(function () {
-          loader.invasiveInvisible();
-        });
+        })
+          //  .catch(function (resp) {
+          //  errorService.showError(resp);
+          //})
+          .finally(function () {
+            loader.invasiveInvisible();
+          });
 
       },
       deleteOptsClick: function (row) {
@@ -252,10 +319,13 @@ angular.module('testClientGulp')
                 row.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
                 }).catch(function (resp) {
-                  if (_.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR') {
-                    resp.data.message = 'Office cannot be deleted because it has employees assigned';
+                  if (resp.status === 400) {
+                    if (_.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR') {
+                      resp.data.message = 'Office cannot be deleted because it has employees assigned';
+                    }
+                    errorService.showError(resp);
                   }
-                  errorService.showError(resp);
+
                 }).finally(function () {
                   loader.invasiveInvisible();
                 });
@@ -309,7 +379,9 @@ angular.module('testClientGulp')
           $rootScope.$broadcast('$saved-office', office, isEdit);
           close('saved');
         }).catch(function (resp) {
-          errorService.formError(resp, $scope.officeForm);
+          if (resp.status === 400) {
+            errorService.formError(resp, $scope.officeForm);
+          }
         }).finally(function () {
           loader.invasiveInvisible();
           self.saving = false;
@@ -317,6 +389,21 @@ angular.module('testClientGulp')
       }
     };
 
+
+  }]);
+
+/**
+ * @ngdoc function
+ * @name testClientGulp.controller:MainCtrl
+ * @description
+ * # MainCtrl
+ * Controller of the testClientGulp
+ */
+angular.module('testClientGulp')
+  .controller('HelpCtrl', ["$scope", "loader", function ($scope, loader) {
+    'use strict';
+    var
+      self = this;
 
   }]);
 
@@ -356,7 +443,9 @@ angular.module('testClientGulp')
           $rootScope.$broadcast('$saved-employee', employee, isEdit);
           close('saved');
         }).catch(function (resp) {
-          errorService.formError(resp, $scope.employeeForm);
+          if (resp.status === 400) {
+            errorService.formError(resp, $scope.employeeForm);
+          }
         }).finally(function () {
           self.saving = false;
           loader.invasiveInvisible();
@@ -371,9 +460,12 @@ angular.module('testClientGulp')
           };
 
         $scope.offices = OfficeModel.query(params);
-        return $scope.offices.$promise.catch(function (resp) {
-          errorService.showError(resp);
-        });
+        return $scope.offices.$promise;
+        //  .catch(function (resp) {
+        //  errorService.showError(resp);
+        //});
+
+
         //return $http.get(
         //  'http://maps.googleapis.com/maps/api/geocode/json',
         //  {params: params}
@@ -394,7 +486,7 @@ angular.module('testClientGulp')
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('EmployeesCtrl', ["$scope", "callServer", "EmployeeModel", "ModalService", "$timeout", "loader", "errorService", function ($scope, callServer, EmployeeModel, ModalService, $timeout, loader, errorService) {
+  .controller('EmployeesCtrl', ["$scope", "callServer", "EmployeeModel", "ModalService", "$timeout", "loader", function ($scope, callServer, EmployeeModel, ModalService, $timeout, loader) {
     'use strict';
 
     var ctrl = this;
@@ -457,9 +549,11 @@ angular.module('testClientGulp')
               employee: employee
             }
           });
-        }).catch(function (resp) {
-          errorService.showError(resp);
-        }).finally(function () {
+        })
+        //  .catch(function (resp) {
+        //  errorService.showError(resp);
+        //})
+          .finally(function () {
           loader.invasiveInvisible();
         });
 
@@ -489,9 +583,11 @@ angular.module('testClientGulp')
                 loader.invasiveVisible();
                 employee.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
-                }).catch(function (resp) {
-                  errorService.showError(resp);
-                }).finally(function () {
+                })
+                //  .catch(function (resp) {
+                //  errorService.showError(resp);
+                //})
+                  .finally(function () {
                   loader.invasiveInvisible();
                 });
                 break;
@@ -533,7 +629,6 @@ angular.module('testClientGulp')
 
   }]);
 
-
 /**
  * @ngdoc function
  * @name testClientGulp.controller:AppCtrl
@@ -542,7 +637,7 @@ angular.module('testClientGulp')
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('ModalClientCtrl', ["$scope", "$rootScope", "client", "providers", "loader", "errorService", "$timeout", "$http", "config", "close", function ($scope, $rootScope, client, providers, loader, errorService, $timeout, $http, config, close) {
+  .controller('ModalClientCtrl', ["$scope", "$rootScope", "client", "providers", "loader", "errorService", "$timeout", "$http", "close", function ($scope, $rootScope, client, providers, loader, errorService, $timeout, $http, close) {
     'use strict';
     var
       self = this;
@@ -576,7 +671,9 @@ angular.module('testClientGulp')
           close('saved');
 
         }).catch(function (resp) {
-          errorService.formError(resp, $scope.clientForm);
+          if (resp.status === 400) {
+            errorService.formError(resp, $scope.clientForm);
+          }
         }).finally(function () {
           self.saving = false;
           loader.invasiveInvisible();
@@ -600,7 +697,7 @@ angular.module('testClientGulp')
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('ClientsCtrl', ["$scope", "callServer", "config", "ClientModel", "loader", "errorService", "ModalService", "ProviderModel", "$q", function ($scope, callServer, config, ClientModel, loader, errorService, ModalService, ProviderModel, $q) {
+  .controller('ClientsCtrl', ["$scope", "callServer", "ClientModel", "loader", "ModalService", "ProviderModel", "$q", function ($scope, callServer, ClientModel, loader, ModalService, ProviderModel, $q) {
     'use strict';
     var ctrl = this;
 
@@ -633,8 +730,6 @@ angular.module('testClientGulp')
               providers: providers
             }
           });
-        }).catch(function (resp) {
-          errorService.showError(resp);
         }).finally(function () {
           loader.invasiveInvisible();
         });
@@ -653,9 +748,11 @@ angular.module('testClientGulp')
               client: client
             }
           });
-        }).catch(function (resp) {
-          errorService.showError(resp);
-        }).finally(function () {
+        })
+        //  .catch(function (resp) {
+        //  errorService.showError(resp);
+        //})
+          .finally(function () {
           loader.invasiveInvisible();
         });
       },
@@ -673,9 +770,11 @@ angular.module('testClientGulp')
               providers: providers
             }
           });
-        }).catch(function (resp) {
-          errorService.showError(resp);
-        }).finally(function () {
+        })
+        //  .catch(function (resp) {
+        //  errorService.showError(resp);
+        //})
+          .finally(function () {
           loader.invasiveInvisible();
         });
 
@@ -705,9 +804,11 @@ angular.module('testClientGulp')
                 loader.invasiveVisible();
                 client.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
-                }).catch(function (resp) {
-                  errorService.showError(resp);
-                }).finally(function () {
+                })
+                //  .catch(function (resp) {
+                //  errorService.showError(resp);
+                //})
+                  .finally(function () {
                   loader.invasiveInvisible();
                 });
                 break;
@@ -718,6 +819,26 @@ angular.module('testClientGulp')
           });
         });
       }
+    };
+  }]);
+
+angular.module('testClientGulp')
+  .service('security', ["$q", function ($q) {
+    'use strict';
+    var
+      self = this,
+      userData;
+
+    self.setUserData = function (newUserData) {
+      userData = newUserData;
+    };
+
+    self.getUserData = function () {
+      return userData;
+    };
+
+    self.getTicket = function () {
+      return userData && userData.ticket;
     };
   }]);
 
@@ -736,73 +857,67 @@ angular.module('testClientGulp')
       self = this;
 
     self.routes = {
-      home: {
-        name: 'home',
+
+      base: {
+        name: 'base',
         abstract: true,
-        url: '/',
-        controller: 'HomeCtrl as Home',
-        templateUrl: '/views/home.html',
+        controller: 'BaseCtrl as Base',
+        templateUrl: '/views/base.html',
         resolve: {
-          config: ['$http', 'errorService', 'config', function ($http, errorService, config) {
-            return $http.get('/assets/config.json').then(function (resp) {
-              if (!_.isObject(resp.data)) {
-                throw new Error('Invalid System Configuration');
+          resolvedSecurity: ['config', '$http', 'security', function (config, $http, security) {
+            return $http.get(config.CAS_URL + '/validate', {
+              loginDlgConf: {
+                canClose: false
               }
-
-              config.setConfig(resp.data);
-              return resp.data;
-            }).catch(function (resp) {
-              if (resp instanceof Error) {
-                errorService.showError({
-                  data: resp
-                });
-                throw resp;
-              } else {
-                errorService.showError(resp, {
-                  404: 'System Configuration not Found'
-                });
-                throw new Error('System Configuration not Found');
-              }
-
-            });
-            //success(function(data, status, headers, config) {
-            // this callback will be called asynchronously
-            // when the response is available
-            //}).
-            //error(function(data, status, headers, config) {
-            // called asynchronously if an error occurs
-            // or server returns response with an error status.
-            //});
-            //var def = $q.defer();
-            //$timeout(function () {
-            //  def.resolve();
-            //}, 2000);
-            //return def.promise;
+            }).then(function (resp) {
+              security.setUserData(resp.data);
+            })
           }]
         }
       },
+      home: {
+        name: 'base.home',
+        abstract: true,
+        controller: 'HomeCtrl as Home',
+        templateUrl: '/views/home.html'
+      },
+      help: {
+        name: 'base.home.help',
+        url: '^/help',
+        controller: 'HelpCtrl as Help',
+        templateUrl: '/views/help/help.html'
+      },
       employees: {
-        name: 'home.employees',
-        url: 'employees',
+        name: 'base.home.employees',
+        url: '^/employees',
         controller: 'EmployeesCtrl as Employees',
         templateUrl: '/views/employees/employees.html'
+        //,resolve:{
+        //  test: ['$q', '$timeout', function($q, $timeout){
+        //    var def = $q.defer();
+        //    $timeout(function () {
+        //      def.resolve();
+        //    }, 2000);
+        //    return def.promise;
+        //  }]
+        //}
       },
       offices: {
-        name: 'home.offices',
-        url: 'offices',
+        name: 'base.home.offices',
+        url: '^/offices',
         controller: 'OfficesCtrl as Offices',
         templateUrl: '/views/offices/offices.html'
 
       },
       clients: {
-        name: 'home.clients',
-        url: 'clients',
+        name: 'base.home.clients',
+        url: '^/clients',
         controller: 'ClientsCtrl as Clients',
         templateUrl: '/views/clients/clients.html'
       },
       providers: {
-        name: 'home.providers',
-        url: 'providers',
+        name: 'base.home.providers',
+        url: '^/providers',
         controller: 'ProvidersCtrl as Providers',
         templateUrl: '/views/providers/providers.html'
       }
@@ -815,46 +930,31 @@ angular.module('testClientGulp')
     }
 
     //$locationProvider.hashPrefix('!');
-    $urlRouterProvider.otherwise('/employees');
+    $urlRouterProvider.otherwise('/help');
 
 
-    self.$get = ["$state", "loader", "$rootScope", function ($state, loader, $rootScope) {
-      $rootScope.$on('$stateChangeStart',
-        function (event, toState, toParams, fromState, fromParams) {
-          loader.nonInvasiveVisible();
+    self.$get = ["$state", "loader", "$rootScope", "ModalService", "security", function ($state, loader, $rootScope, ModalService, security) {
+      function go2State(routeName, params, options) {
+        var
+          currentUrl,
+          toUrl;
+        if (self.routes[routeName]) {
+
+          currentUrl = $state.href($state.current.name, $state.$current.locals.globals.$stateParams);
+          toUrl = $state.href(self.routes[routeName].name, params);
+
+          if (currentUrl !== toUrl) {
+            return $state.go(self.routes[routeName].name, params, options);
+          }
+        } else {
+          throw new Error('Non existing route.');
         }
-      );
 
-      $rootScope.$on('$stateChangeSuccess',
-        function (event, toState, toParams, fromState, fromParams) {
-          loader.nonInvasiveInvisible();
-        }
-      );
+      }
 
-      $rootScope.$on('$stateChangeError',
-        function (event, toState, toParams, fromState, fromParams) {
-          loader.nonInvasiveInvisible();
-        }
-      );
       return {
         routes: self.routes,
-        go2State: function (routeName, params, options) {
-          var
-            currentUrl,
-            toUrl;
-          if (self.routes[routeName]) {
-
-            currentUrl = $state.href($state.current.name, $state.$current.locals.globals.$stateParams);
-            toUrl = $state.href(self.routes[routeName].name, params);
-
-            if (currentUrl !== toUrl) {
-              return $state.go(self.routes[routeName].name, params, options);
-            }
-          } else {
-            throw new Error('Non existing route.');
-          }
-
-        }
+        go2State: go2State
       };
     }];
   }]);
@@ -894,13 +994,104 @@ angular.module('testClientGulp')
   });
 
 angular.module('testClientGulp')
+  .factory('httpInterceptor', ["$q", "$injector", function ($q, $injector) {
+    'use strict';
+
+    return {
+      // optional method
+      'request': function (config) {
+        // do something on success
+        var
+          security = $injector.get('security'),
+          ticket = security.getTicket(),
+          sysConfig = $injector.get('config');
+        if (config.url.indexOf(sysConfig.API_URL) === 0 || config.url.indexOf(sysConfig.CAS_URL) === 0) {
+          config.withCredentials = true;
+          if (ticket) {
+            config.headers['Authorization'] = ticket;
+            //config.headers['Authorization'] = 'Bearer ' + ticket;
+          }
+        }
+        return config;
+      },
+
+      // optional method
+      //'requestError': function(rejection) {
+      // do something on error
+      //if (canRecover(rejection)) {
+      //  return responseOrNewPromise
+      //}
+      //return $q.reject(rejection);
+      //},
+
+
+      // optional method
+      //'response': function(response) {
+      // do something on success
+      //return response;
+      //},
+
+      // optional method
+      'responseError': function (resp) {
+        // do something on error
+        //if (canRecover(rejection)) {
+        //  return responseOrNewPromise
+        //}
+        var
+          ModalService = $injector.get('ModalService'),
+          errorService = $injector.get('errorService'),
+          $http = $injector.get('$http'),
+          canClose = (resp.config.loginDlgConf && resp.config.loginDlgConf.canClose);
+        if (_.isUndefined(canClose)) {
+          canClose = true;
+        }
+        switch (resp.status) {
+          case 401:
+            return ModalService.showModal({
+              templateUrl: '/views/modalLogin.html',
+              controller: 'ModalLoginCtrl as ModalLogin',
+
+              inputs: {
+                canClose: canClose
+              }
+            }).then(function (modal) {
+              return modal.close.then(function (result) {
+                switch (result) {
+                  case 'logged':
+                    return $http(resp.config);
+                    break;
+
+                  default:
+                    return $q.reject(resp);
+                    break;
+                }
+              });
+            });
+            break;
+          case 400:
+            return $q.reject(resp);
+            break;
+          default:
+            if (!resp.config.doNotHandleErrors) {
+              errorService.showError(resp);
+            }
+            return $q.reject(resp);
+            break;
+        }
+
+
+      }
+    };
+  }]);
+
+angular.module('testClientGulp')
   .service('errorService', ["ModalService", function (ModalService) {
     'use strict';
 
     var
       self = this,
       codes = {
-        0: 'General Network Error. Please check your internet connection to Api Server',
+        0: 'General Network Error. Please check your internet connection, API Server status and CAS Server status.',
         100: 'CONTINUE',
         101: 'SWITCHING_PROTOCOLS',
         200: 'OK',
@@ -984,6 +1175,8 @@ angular.module('testClientGulp')
     };
 
     self.showError = function (response, errorExt) {
+
+      if (response.status === 401) return;
       var
         message;
 
@@ -1035,20 +1228,51 @@ angular.module('testClientGulp')
   }]);
 
 angular.module('testClientGulp')
-  .service('config', function () {
+  .factory('config', function () {
     'use strict';
 
-    var
-      self = this;
-
-    self.setConfig = function (newConfig) {
-      _.extend(self, newConfig);
-    };
+    return $config;
 
   });
 
+//var
+//  self = this;
+//
+//self.$promise = $http.get('/assets/config.json', {doNotHandleErrors: true}).then(function (resp) {
+//  _.extend(self, resp.data);
+//  return self;
+//}).catch(function (resp) {
+//  errorService.showError(resp, {
+//    404: 'System Configuration Not Found ' + resp.config.url
+//  });
+//  throw new Error('Error Loading System Configuration');
+//});
+
+//, deferred = $q.defer(),
+//oReq = new XMLHttpRequest();
+//self.$promise = deferred.promise;
+//
+//function reqListener() {
+//  if (oReq.status === 200) {
+//    _.extend(self, angular.fromJson(this.responseText));
+//    deferred.resolve(self);
+//  } else {
+//    deferred.reject('Error Loading System Configuration');
+//  }
+//
+//}
+
+//function errorListener() {
+//  deferred.reject('Error Loading System Configuration');
+//}
+
+//oReq.addEventListener('error', errorListener, false);
+//oReq.addEventListener('load', reqListener, false);
+//oReq.open("get", "/assets/config.json", true);
+//oReq.send();
+
 angular.module('testClientGulp')
-  .factory('callServer', ["config", "$timeout", "errorService", function (config, $timeout, errorService) {
+  .factory('callServer', ["config", function (config) {
     'use strict';
 
     return function (opts, tableState, api) {
@@ -1105,7 +1329,7 @@ angular.module('testClientGulp')
       }).$promise.catch(function (resp) {
           ctrl.smartTable.isLoading = false;
           tableState.pagination.numberOfPages = 0;
-          errorService.showError(resp);
+          //errorService.showError(resp);
         });
     };
   }]);
@@ -1286,7 +1510,9 @@ angular.module('testClientGulp')
       '<span ng-if="item.label">{{ item.label }}</span>' +
       '</a>' +
       '</li>' +
-        '<img ng-if="imgSrc" class="pull-right" style="margin-right: 20px;" height="55px" ng-src="{{imgSrc}}" alt=""/>'+
+
+      '<img ng-if="imgSrc" class="pull-right" style="margin-right: 20px;margin-top: -3px;" height="55px" ng-src="{{imgSrc}}" alt=""/>' +
+
       '</ul>',
       restrict: 'E',
       scope: {
@@ -1297,6 +1523,66 @@ angular.module('testClientGulp')
     };
   });
 
+/**
+ * @ngdoc function
+ * @name testClientGulp.controller:AppCtrl
+ * @description
+ * # AppCtrl
+ * Controller of the testClientGulp
+ */
+angular.module('testClientGulp')
+  .controller('ModalLoginCtrl', ["$scope", "loader", "$http", "security", "config", "canClose", "zIndex", "close", function ($scope, loader, $http, security, config, canClose, zIndex, close) {
+    'use strict';
+
+    var
+      self = this;
+
+    $scope.zIndex = zIndex;
+    self.model = {};
+    self.canClose = canClose;
+
+    self.title = 'Please Enter your Credentials';
+
+    loader.invasiveInvisible();
+    //self.offices = $resource(API_URL + "api/offices/:id").query();
+    self.on = {
+      close: function (action) {
+        close(action);
+      },
+      doLogin: function (valid) {
+
+        if (self.saving || !valid) {
+          return;
+        }
+
+        self.saving = true;
+
+        return $http.post(config.CAS_URL + '/login', self.model).then(function (resp) {
+          security.setUserData(resp.data);
+          close('logged');
+        }).catch(function (resp) {
+          switch (resp.status) {
+            case 400:
+              $scope.loginForm['name'].$setValidity('invalid-credentials', false);
+              if (!$scope.loginForm['name'].$validators['invalid-credentials']) {
+                $scope.loginForm['name'].$validators['invalid-credentials'] = function () {
+                  return true;
+                };
+              }
+              break;
+            default:
+
+              break;
+          }
+        }).finally(function () {
+          self.saving = false;
+        });
+      }
+    };
+
+
+  }]);
+
 
 /**
  * @ngdoc function
@@ -1306,17 +1592,13 @@ angular.module('testClientGulp')
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('ModalCtrl', ["$scope", "title", "buttons", "message", "zIndex", "close", function ($scope, title, buttons, message, zIndex, close) {
+  .controller('ModalCtrl', ["$scope", "title", "buttons", "message", "close", function ($scope, title, buttons, message, close) {
     'use strict';
     var self = this;
     $scope.title = title;
     $scope.message = message;
     $scope.buttons = [];
-    if (zIndex) {
-      $scope.zIndexStyle = {
-        'z-index': zIndex
-      };
-    }
+
     _.each(_.keys(buttons), function (key) {
       $scope.buttons.push(angular.extend({
         result: key
@@ -1325,6 +1607,101 @@ angular.module('testClientGulp')
 
     $scope.close = function (action) {
       close(action);
+    };
+
+  }]);
+
+/**
+ * @ngdoc function
+ * @name testClientGulp.controller:MainCtrl
+ * @description
+ * # MainCtrl
+ * Controller of the testClientGulp
+ */
+angular.module('testClientGulp')
+  .controller('HomeCtrl', ["$scope", "$http", "loader", "ModalService", "security", "config", function ($scope, $http, loader, ModalService, security, config) {
+    'use strict';
+    var
+      self = this,
+      roles = security.getUserData().roles || [];
+
+    self.security = security;
+    self.CAS_URL = config.CAS_URL;
+    self.list = [{
+      state: 'help',
+      iconCls: 'icon-question',
+      label: 'Help'
+    }];
+    if (_.intersection(['human_resources'], roles).length) {
+      self.list.push({
+        state: 'employees',
+        iconCls: 'icon-users',
+        label: 'Employees'
+      });
+    }
+
+    if (_.intersection(['director'], roles).length) {
+      self.list.push(
+        {
+          state: 'offices',
+          iconCls: 'icon-library',
+          label: 'Offices'
+        }
+      );
+    }
+
+    //self.list = [
+    //  {
+    //    state: 'clients',
+    //    iconCls: 'icon-user-tie',
+    //    label: 'Clients'
+    //  }, {
+    //    state: 'providers',
+    //    iconCls: 'icon-truck',
+    //    label: 'Providers'
+    //  }
+    //];
+
+    self.on = {
+      doLogout: function () {
+        ModalService.showModal({
+          templateUrl: '/views/modalConfirm.html',
+          controller: 'ModalCtrl',
+          inputs: {
+            title: 'Are you sure you want to logout?',
+            buttons: {
+              yes: {
+                type: 'primary',
+                text: 'Yes'
+              },
+              no: {
+                type: 'default',
+                text: 'No'
+              }
+            },
+            message: 'You will be logged out of the Central Authorization Server which means' +
+            ' you will be logged out of this and all other Applications linked to this Authorization Server.'
+          }
+        }).then(function (modal) {
+          modal.close.then(function (result) {
+            switch (result) {
+              case 'yes':
+                loader.invasiveVisible();
+                $http.get(config.CAS_URL + '/logout').then(
+                  function () {
+                    loader.invasiveInvisible();
+                    window.location = '/';
+                  }
+                );
+                break;
+
+              default:
+
+            }
+          });
+        });
+
+      }
     };
 
   }]);
@@ -1338,31 +1715,10 @@ angular.module('testClientGulp')
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('HomeCtrl', ["$scope", "routing", "loader", function ($scope, routing, loader) {
+  .controller('BaseCtrl', ["$scope", "loader", function ($scope, loader) {
     'use strict';
     var
       self = this;
-
-    self.list = [
-      {
-        state: 'employees',
-        iconCls: 'icon-users',
-        label: 'Employees',
-        active: true
-      }, {
-        state: 'offices',
-        iconCls: 'icon-library',
-        label: 'Offices'
-      }, {
-        state: 'clients',
-        iconCls: 'icon-user-tie',
-        label: 'Clients'
-      }, {
-        state: 'providers',
-        iconCls: 'icon-truck',
-        label: 'Providers'
-      }
-    ];
 
     self.loaderSvc = loader;
   }]);
@@ -1466,6 +1822,7 @@ angular.module('testClientGulp')
               };
               closeFns.push(fnClose);
               zIndex++;
+
               //  If we have provided any inputs, pass them to the controller.
               if (options.inputs) {
                 for (var inputName in options.inputs) {
@@ -1476,6 +1833,11 @@ angular.module('testClientGulp')
               if (!inputs['zIndex']) {
                 inputs['zIndex'] = zIndex;
               }
+
+              modalScope.zIndexStyle = {
+                'z-index': inputs['zIndex']
+              };
+
 
               //  Create the controller, explicitly specifying the scope to use.
               var modalController = $controller(controller, inputs),
@@ -1544,6 +1906,18 @@ try {
   module = angular.module('testClientGulp', []);
 }
 module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/views/base.html',
+    '<div class="non-invasive-loader" ng-if="Base.loaderSvc.getNonInvasiveVisible()"></div><div class="invasive-loader" ng-if="Base.loaderSvc.getInvasiveVisible()"><i class="icon-spinner10"></i></div><div ui-view></div>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('testClientGulp');
+} catch (e) {
+  module = angular.module('testClientGulp', []);
+}
+module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/views/errors.html',
     '<div class="error" ng-message="required"><span popover-append-to-body="true" popover-trigger="mouseenter" popover="This field is mandatory, please fill it with proper information" class="label label-danger">Required</span></div><div class="error" ng-message="email"><span popover-append-to-body="true" popover-trigger="mouseenter" popover="This field is an email, please fill it with proper information" class="label label-danger">Invalid email address</span></div>');
 }]);
@@ -1557,7 +1931,7 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/views/home.html',
-    '<div class="non-invasive-loader" ng-if="Home.loaderSvc.getNonInvasiveVisible()"></div><div class="invasive-loader" ng-if="Home.loaderSvc.getInvasiveVisible()"><i class="icon-spinner10"></i></div><active-list maincls="\'main-bar list-inline\'" list="Home.list" img-src="\'/assets/logo.png\'"></active-list><div ui-view></div><div class="main-footer"><span class="main-footer-text pull-left">&copy; 2015 All Rights Reserved</span></div>');
+    '<div class="main-header"><span class="user-photo"><img ng-src="{{Home.CAS_URL + Home.security.getUserData().image}}" alt=""></span> <span class="welcome">Welcome {{Home.security.getUserData().name}}</span> <i popover-trigger="mouseenter" popover="Logout" popover-placement="bottom" class="icon-cancel-circle pull-right" ng-click="Home.on.doLogout()"></i></div><active-list maincls="\'main-bar list-inline\'" list="Home.list" img-src="\'/assets/logo.png\'"></active-list><div ui-view></div><div class="main-footer"><span class="main-footer-text pull-left">&copy; 2015 All Rights Reserved</span></div>');
 }]);
 })();
 
@@ -1581,7 +1955,7 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/views/modalError.html',
-    '<div class="modal-fade" ng-style="zIndexStyle"><div class="modal-overlay modal-error animated zoomIn"><div class="row"><div class="col-xs-12"><i ng-click="close(\'cancel\')" class="icon-cross"></i></div></div><div class="row"><div class="col-xs-10 margin-title"><span class="title-error">{{title}}</span></div></div><div class="row message-margin"><div class="col-xs-12"><div class="alert alert-danger">{{message}}</div></div></div><div class="row"><div class="col-xs-12"><button ng-repeat="button in buttons" class="btn pull-right btn-{{button.type}}" ms-focus="$index == 0" ng-click="close(\'{{button.result}}\')" style="margin-left: 10px">{{ button.text }}</button></div></div></div></div>');
+    '<div class="modal-fade" ng-style="zIndexStyle"><div class="modal-overlay modal-error animated zoomIn"><div class="row"><div class="col-xs-12"><i ng-click="close(\'cancel\')" class="icon-cross"></i></div></div><div class="row"><div class="col-xs-12 margin-title"><span class="title-error">{{title}}</span></div></div><div class="row message-margin"><div class="col-xs-12"><div class="alert alert-danger">{{message}}</div></div></div><div class="row"><div class="col-xs-12"><button ng-repeat="button in buttons" class="btn pull-right btn-{{button.type}}" ms-focus="$index == 0" ng-click="close(\'{{button.result}}\')" style="margin-left: 10px">{{ button.text }}</button></div></div></div></div>');
 }]);
 })();
 
@@ -1592,8 +1966,8 @@ try {
   module = angular.module('testClientGulp', []);
 }
 module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('/assets/icons/demo.html',
-    '<!doctype html><html><head><meta charset="utf-8"><title>IcoMoon Demo</title><meta name="description" content="An Icon Font Generated By IcoMoon.io"><meta name="viewport" content="width=device-width"><link rel="stylesheet" href="demo-files/demo.css"><link rel="stylesheet" href="style.css"></head><body><div class="bgc1 clearfix"><h1 class="mhmm mvm"><span class="fgc1">Font Name:</span> icomoon <small class="fgc1">(Glyphs:&nbsp;12)</small></h1></div><div class="clearfix mhl ptl"><h1 class="mvm mtn fgc1">Grid Size: 16</h1><div class="glyph fs1"><div class="clearfix bshadow0 pbs"><span class="icon-library"></span> <span class="mls">icon-library</span></div><fieldset class="fs0 size1of1 clearfix hidden-false"><input readonly value="e600" class="unit size1of2"> <input maxlength="1" readonly value="&#xe600;" class="unitRight size1of2 talign-right"></fieldset><div class="fs0 bshadow0 clearfix hidden-true"><span class="unit pvs fgc1">liga:</span> <input readonly value="" class="liga unitRight"></div></div><div class="glyph fs1"><div class="clearfix bshadow0 pbs"><span class="icon-pencil"></span> <span class="mls">icon-pencil</span></div><fieldset class="fs0 size1of1 clearfix hidden-false"><input readonly value="e905" class="unit size1of2"> <input maxlength="1" readonly value="&#xe905;" class="unitRight size1of2 talign-right"></fieldset><div class="fs0 bshadow0 clearfix hidden-true"><span class="unit pvs fgc1">liga:</span> <input readonly value="pencil, write" class="liga unitRight"></div></div><div class="glyph fs1"><div class="clearfix bshadow0 pbs"><span class="icon-users"></span> <span class="mls">icon-users</span></div><fieldset class="fs0 size1of1 clearfix hidden-false"><input readonly value="e972" class="unit size1of2"> <input maxlength="1" readonly value="&#xe972;" class="unitRight size1of2 talign-right"></fieldset><div class="fs0 bshadow0 clearfix hidden-true"><span class="unit pvs fgc1">liga:</span> <input readonly value="users, group" class="liga unitRight"></div></div><div class="glyph fs1"><div class="clearfix bshadow0 pbs"><span class="icon-user-tie"></span> <span class="mls">icon-user-tie</span></div><fieldset class="fs0 size1of1 clearfix hidden-false"><input readonly value="e976" class="unit size1of2"> <input maxlength="1" readonly value="&#xe976;" class="unitRight size1of2 talign-right"></fieldset><div class="fs0 bshadow0 clearfix hidden-true"><span class="unit pvs fgc1">liga:</span> <input readonly value="user-tie, user5" class="liga unitRight"></div></div><div class="glyph fs1"><div class="clearfix bshadow0 pbs"><span class="icon-spinner10"></span> <span class="mls">icon-spinner10</span></div><fieldset class="fs0 size1of1 clearfix hidden-false"><input readonly value="e983" class="unit size1of2"> <input maxlength="1" readonly value="&#xe983;" class="unitRight size1of2 talign-right"></fieldset><div class="fs0 bshadow0 clearfix hidden-true"><span class="unit pvs fgc1">liga:</span> <input readonly value="spinner10, loading11" class="liga unitRight"></div></div><div class="glyph fs1"><div class="clearfix bshadow0 pbs"><span class="icon-search"></span> <span class="mls">icon-search</span></div><fieldset class="fs0 size1of1 clearfix hidden-false"><input readonly value="e986" class="unit size1of2"> <input maxlength="1" readonly value="&#xe986;" class="unitRight size1of2 talign-right"></fieldset><div class="fs0 bshadow0 clearfix hidden-true"><span class="unit pvs fgc1">liga:</span> <input readonly value="search, magnifier" class="liga unitRight"></div></div><div class="glyph fs1"><div class="clearfix bshadow0 pbs"><span class="icon-bin"></span> <span class="mls">icon-bin</span></div><fieldset class="fs0 size1of1 clearfix hidden-false"><input readonly value="e9ac" class="unit size1of2"> <input maxlength="1" readonly value="&#xe9ac;" class="unitRight size1of2 talign-right"></fieldset><div class="fs0 bshadow0 clearfix hidden-true"><span class="unit pvs fgc1">liga:</span> <input readonly value="bin, trashcan" class="liga unitRight"></div></div><div class="glyph fs1"><div class="clearfix bshadow0 pbs"><span class="icon-truck"></span> <span class="mls">icon-truck</span></div><fieldset class="fs0 size1of1 clearfix hidden-false"><input readonly value="e9b0" class="unit size1of2"> <input maxlength="1" readonly value="&#xe9b0;" class="unitRight size1of2 talign-right"></fieldset><div class="fs0 bshadow0 clearfix hidden-true"><span class="unit pvs fgc1">liga:</span> <input readonly value="truck, transit" class="liga unitRight"></div></div><div class="glyph fs1"><div class="clearfix bshadow0 pbs"><span class="icon-menu3"></span> <span class="mls">icon-menu3</span></div><fieldset class="fs0 size1of1 clearfix hidden-false"><input readonly value="e9bf" class="unit size1of2"> <input maxlength="1" readonly value="&#xe9bf;" class="unitRight size1of2 talign-right"></fieldset><div class="fs0 bshadow0 clearfix hidden-true"><span class="unit pvs fgc1">liga:</span> <input readonly value="menu3, options3" class="liga unitRight"></div></div><div class="glyph fs1"><div class="clearfix bshadow0 pbs"><span class="icon-eye"></span> <span class="mls">icon-eye</span></div><fieldset class="fs0 size1of1 clearfix hidden-false"><input readonly value="e9ce" class="unit size1of2"> <input maxlength="1" readonly value="&#xe9ce;" class="unitRight size1of2 talign-right"></fieldset><div class="fs0 bshadow0 clearfix hidden-true"><span class="unit pvs fgc1">liga:</span> <input readonly value="eye, views" class="liga unitRight"></div></div><div class="glyph fs1"><div class="clearfix bshadow0 pbs"><span class="icon-plus"></span> <span class="mls">icon-plus</span></div><fieldset class="fs0 size1of1 clearfix hidden-false"><input readonly value="ea0a" class="unit size1of2"> <input maxlength="1" readonly value="&#xea0a;" class="unitRight size1of2 talign-right"></fieldset><div class="fs0 bshadow0 clearfix hidden-true"><span class="unit pvs fgc1">liga:</span> <input readonly value="plus, add" class="liga unitRight"></div></div><div class="glyph fs1"><div class="clearfix bshadow0 pbs"><span class="icon-cross"></span> <span class="mls">icon-cross</span></div><fieldset class="fs0 size1of1 clearfix hidden-false"><input readonly value="ea0f" class="unit size1of2"> <input maxlength="1" readonly value="&#xea0f;" class="unitRight size1of2 talign-right"></fieldset><div class="fs0 bshadow0 clearfix hidden-true"><span class="unit pvs fgc1">liga:</span> <input readonly value="cross, cancel" class="liga unitRight"></div></div></div><!--[if gt IE 8]><!--><div class="mhl clearfix mbl"><h1>Font Test Drive</h1><label>Font Size: <input id="fontSize" type="number" class="textbox0 mbm" min="8" value="48"> px</label><input id="testText" class="phl size1of1 mvl" placeholder="Type some text to test..." value=""><div id="testDrive" class="icon-">&nbsp;</div></div><!--<![endif]--><div class="bgc1 clearfix"><p class="mhl">Generated by <a href="https://icomoon.io/app">IcoMoon</a></p></div><script src="demo-files/demo.js"></script></body></html>');
+  $templateCache.put('/views/modalLogin.html',
+    '<div ng-class="{\'modal-fade\':ModalLogin.canClose, \'modal-login-startup\':!ModalLogin.canClose, \'invasive-loader\':ModalLogin.saving}" ng-style="zIndexStyle"><div class="modal-overlay modify-dialog"><div class="row"><div class="col-xs-10 main-title">{{ ModalLogin.title}}</div><div class="col-xs-2" ng-if="ModalLogin.canClose"><i ng-click="ModalLogin.on.close(\'cancel\')" class="icon-cross"></i></div></div><i class="icon-spinner10" style="display: none"></i><form name="loginForm" role="form" novalidate ng-submit="ModalLogin.on.doLogin(loginForm.$valid)"><div class="form-group" ng-class="{\'has-error\': ((loginForm.$submitted || loginForm.name.$touched) && loginForm.name.$invalid),\'has-success\':loginForm.name.$valid}"><div class="errors" ng-messages="loginForm.name.$error" ng-if="loginForm.$submitted || loginForm.name.$touched" ng-messages-include="/views/errors.html"><div class="error" ng-message="invalid-credentials"><span popover-append-to-body="true" popover-trigger="mouseenter" popover="Please, enter a valid User/Password combination" class="label label-danger">Invalid Credentials</span></div></div><label class="control-label" for="name">User</label><div class="input-group"><input ms-focus="true" class="form-control" id="name" name="name" placeholder="Please enter User Name" ng-model="ModalLogin.model.name" required> <span class="input-group-addon"><i class="icon-user"></i></span></div></div><div class="form-group" ng-class="{\'has-error\': ((loginForm.$submitted || loginForm.password.$touched) && loginForm.password.$invalid),\'has-success\':loginForm.password.$valid}"><div class="errors" ng-messages="loginForm.password.$error" ng-if="loginForm.$submitted || loginForm.password.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="password">Password</label><div class="input-group"><input type="password" class="form-control" id="password" name="password" placeholder="Please enter Password" ng-model="ModalLogin.model.password" required> <span class="input-group-addon"><i class="icon-key"></i></span></div></div><div class="row toolbar"><div class="col-xs-12"><button type="submit" class="btn btn-primary pull-right">Login</button> <button ng-if="ModalLogin.canClose" type="button" class="btn btn-default pull-right" style="margin-right: 10px" ng-click="ModalLogin.on.close(\'cancel\')">Cancel</button></div></div></form></div></div>');
 }]);
 })();
 
@@ -1641,7 +2015,7 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/views/employees/employeeDlg.html',
-    '<div class="modal-fade"><div class="modal-overlay animated zoomIn modify-dialog"><div class="row"><div class="col-xs-10 main-title">{{ ModalEmployee.title}}</div><div class="col-xs-2"><i ng-click="ModalEmployee.on.close(\'cancel\')" class="icon-cross"></i></div></div><form name="employeeForm" role="form" novalidate ng-submit="ModalEmployee.on.saveData(employeeForm.$valid)"><div class="form-group" ng-class="{\'has-error\': ((employeeForm.$submitted || employeeForm.firstName.$touched) && employeeForm.firstName.$invalid),\'has-success\':employeeForm.firstName.$valid}"><div class="errors" ng-messages="employeeForm.firstName.$error" ng-if="employeeForm.$submitted || employeeForm.firstName.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="firstName">First Name</label><input ms-focus="true" class="form-control" id="firstName" name="firstName" placeholder="Please enter First Name" ng-model="ModalEmployee.model.firstName" required></div><div class="form-group" ng-class="{\'has-error\': ((employeeForm.$submitted || employeeForm.lastName.$touched) && employeeForm.lastName.$invalid),\'has-success\':employeeForm.lastName.$valid}"><div class="errors" ng-messages="employeeForm.lastName.$error" ng-if="employeeForm.$submitted || employeeForm.lastName.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="lastName">Last Name</label><input class="form-control" id="lastName" name="lastName" placeholder="Please enter Last Name" ng-model="ModalEmployee.model.lastName" required></div><div class="form-group" ng-class="{\'has-error\': ((employeeForm.$submitted || employeeForm.initials.$touched) && employeeForm.initials.$invalid),\'has-success\':employeeForm.initials.$valid}"><div class="errors" ng-messages="employeeForm.initials.$error" ng-if="employeeForm.$submitted || employeeForm.initials.$touched" ng-messages-include="/views/errors.html"><div class="error" ng-message="pattern"><span popover-append-to-body="true" popover-trigger="mouseenter" popover="This field allows only uppercase letters, please fill it with proper information" class="label label-danger">Only uppercase letters allowed</span></div></div><label class="control-label" for="initials">Initials</label><input class="form-control" id="initials" name="initials" placeholder="Please enter Initials" pattern="^[A-Z]*$" ng-model="ModalEmployee.model.initials" required></div><div class="form-group" ng-class="{\'has-error\': ((employeeForm.$submitted || employeeForm.officeId.$touched) && employeeForm.officeId.$invalid),\'has-success\':employeeForm.officeId.$valid}"><div class="errors" ng-messages="employeeForm.officeId.$error" ng-if="employeeForm.$submitted || employeeForm.officeId.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="officeId">Office</label><ui-select id="officeId" name="officeId" required ng-model="ModalEmployee.model.officeId" theme="bootstrap" reset-search-input="false"><ui-select-match placeholder="Search Offices"><i class="icon-cross" ng-click="$event.stopPropagation();ModalEmployee.model.officeId = undefined;"></i> <span>{{$select.selected.name}}</span></ui-select-match><ui-select-choices repeat="office.id as office in offices" refresh="ModalEmployee.on.refreshOffices($select.search)" refresh-delay="0"><div ng-bind-html="office.name | highlight: $select.search"></div></ui-select-choices></ui-select></div><div class="row toolbar"><div class="col-xs-12"><button type="submit" class="btn btn-primary pull-right">Save</button> <button type="button" class="btn btn-default pull-right" style="margin-right: 10px" ng-click="ModalEmployee.on.close(\'cancel\')">Cancel</button></div></div></form></div></div>');
+    '<div class="modal-fade"><div class="modal-overlay animated zoomIn modify-dialog"><div class="row"><div class="col-xs-10 main-title">{{ ModalEmployee.title}}</div><div class="col-xs-2"><i ng-click="ModalEmployee.on.close(\'cancel\')" class="icon-cross"></i></div></div><form name="employeeForm" role="form" novalidate ng-submit="ModalEmployee.on.saveData(employeeForm.$valid)"><div class="form-group" ng-class="{\'has-error\': ((employeeForm.$submitted || employeeForm.firstName.$touched) && employeeForm.firstName.$invalid),\'has-success\':employeeForm.firstName.$valid}"><div class="errors" ng-messages="employeeForm.firstName.$error" ng-if="employeeForm.$submitted || employeeForm.firstName.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="firstName">First Name</label><input ms-focus="true" class="form-control" id="firstName" name="firstName" placeholder="Please enter First Name" ng-model="ModalEmployee.model.firstName" required></div><div class="form-group" ng-class="{\'has-error\': ((employeeForm.$submitted || employeeForm.lastName.$touched) && employeeForm.lastName.$invalid),\'has-success\':employeeForm.lastName.$valid}"><div class="errors" ng-messages="employeeForm.lastName.$error" ng-if="employeeForm.$submitted || employeeForm.lastName.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="lastName">Last Name</label><input class="form-control" id="lastName" name="lastName" placeholder="Please enter Last Name" ng-model="ModalEmployee.model.lastName" required></div><div class="form-group" ng-class="{\'has-error\': ((employeeForm.$submitted || employeeForm.initials.$touched) && employeeForm.initials.$invalid),\'has-success\':employeeForm.initials.$valid}"><div class="errors" ng-messages="employeeForm.initials.$error" ng-if="employeeForm.$submitted || employeeForm.initials.$touched" ng-messages-include="/views/errors.html"><div class="error" ng-message="pattern"><span popover-append-to-body="true" popover-trigger="mouseenter" popover="This field allows only uppercase letters, no spaces, please fill it with proper information" class="label label-danger">Only uppercase letters allowed (No spaces)</span></div></div><label class="control-label" for="initials">Initials</label><input class="form-control" id="initials" name="initials" placeholder="Please enter Initials" pattern="^[A-Z]*$" ng-model="ModalEmployee.model.initials" required></div><div class="form-group" ng-class="{\'has-error\': ((employeeForm.$submitted || employeeForm.officeId.$touched) && employeeForm.officeId.$invalid),\'has-success\':employeeForm.officeId.$valid}"><div class="errors" ng-messages="employeeForm.officeId.$error" ng-if="employeeForm.$submitted || employeeForm.officeId.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="officeId">Office</label><ui-select id="officeId" name="officeId" required ng-model="ModalEmployee.model.officeId" theme="bootstrap" reset-search-input="false"><ui-select-match placeholder="Search Offices"><i class="icon-cross" ng-click="$event.stopPropagation();ModalEmployee.model.officeId = undefined;"></i> <span>{{$select.selected.name}}</span></ui-select-match><ui-select-choices repeat="office.id as office in offices" refresh="ModalEmployee.on.refreshOffices($select.search)" refresh-delay="0"><div ng-bind-html="office.name | highlight: $select.search"></div></ui-select-choices></ui-select></div><div class="row toolbar"><div class="col-xs-12"><button type="submit" class="btn btn-primary pull-right">Save</button> <button type="button" class="btn btn-default pull-right" style="margin-right: 10px" ng-click="ModalEmployee.on.close(\'cancel\')">Cancel</button></div></div></form></div></div>');
 }]);
 })();
 
@@ -1664,8 +2038,38 @@ try {
   module = angular.module('testClientGulp', []);
 }
 module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('/views/help/help.html',
+    '<div class="help-tab"><div class="row"><div class="col-xs-12"><span class="help-tab-title">Help</span></div></div><div class="container"><p>This application has two main functionalities, Employees and Offices. Users having <code>"human_resources"</code> role can access Employees and Users having <code>"director"</code> role can access Offices. Here are all posible users and their passwords and roles.</p></div><div class="col-xs-12"><pre class="prettyprint">\n' +
+    '        [\n' +
+    '          {\n' +
+    '            user: \'nestor.urquiza@gmail.com\',\n' +
+    '            password: \'nestor\',\n' +
+    '            roles: [\'director\', \'human_resources\']\n' +
+    '          },\n' +
+    '          {\n' +
+    '            user: \'damianbh@gmail.com\',\n' +
+    '            password: \'damianbh\',\n' +
+    '            roles: [\'human_resources\', \'manager\']\n' +
+    '          },\n' +
+    '          {\n' +
+    '            user:\'alejandro@gmail.com\',\n' +
+    '            password: \'alejandro\',\n' +
+    '            roles: [\'director\']\n' +
+    '          }\n' +
+    '        ]\n' +
+    '      </pre></div></div>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('testClientGulp');
+} catch (e) {
+  module = angular.module('testClientGulp', []);
+}
+module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/views/offices/officeDlg.html',
-    '<div class="modal-fade"><div class="modal-overlay animated zoomIn modify-dialog"><div class="row"><div class="col-xs-10 main-title">{{ ModalOffice.title}}</div><div class="col-xs-2"><i ng-click="ModalOffice.on.close(\'cancel\')" class="icon-cross"></i></div></div><form name="officeForm" role="form" novalidate ng-submit="ModalOffice.on.saveData(officeForm.$valid)"><div class="form-group" ng-class="{\'has-error\': ((officeForm.$submitted || officeForm.name.$touched) && officeForm.name.$invalid),\'has-success\':officeForm.name.$valid}"><div class="errors" ng-messages="officeForm.name.$error" ng-if="officeForm.$submitted || officeForm.name.$touched" ng-messages-include="/views/errors.html"><div class="error" ng-message="name_must_be_unique"><span popover-append-to-body="true" popover-trigger="mouseenter" popover="Office name already exists. Please provide an Office name that it\'s not already registered" class="label label-danger">Office name must be unique</span></div></div><label class="control-label" for="name">Name</label><input ms-focus="true" class="form-control" id="name" name="name" placeholder="Please enter Office Name" ng-model="ModalOffice.model.name" required></div><div class="row toolbar"><div class="col-xs-12"><button type="submit" class="btn btn-primary pull-right">Save</button> <button type="button" class="btn btn-default pull-right" style="margin-right: 10px" ng-click="ModalOffice.on.close(\'cancel\')">Cancel</button></div></div></form></div></div>');
+    '<div class="modal-fade"><div class="modal-overlay animated zoomIn modify-dialog"><div class="row"><div class="col-xs-10 main-title">{{ ModalOffice.title}}</div><div class="col-xs-2"><i ng-click="ModalOffice.on.close(\'cancel\')" class="icon-cross"></i></div></div><form name="officeForm" role="form" novalidate ng-submit="ModalOffice.on.saveData(officeForm.$valid)"><div class="form-group" ng-class="{\'has-error\': ((officeForm.$submitted || officeForm.name.$touched) && officeForm.name.$invalid),\'has-success\':officeForm.name.$valid}"><div class="errors" ng-messages="officeForm.name.$error" ng-if="officeForm.$submitted || officeForm.name.$touched" ng-messages-include="/views/errors.html"><div class="error" ng-message="name_must_be_unique"><span popover-append-to-body="true" popover-trigger="mouseenter" popover="Office name already exists. Please provide an Office name that\'s not already registered" class="label label-danger">Office name must be unique</span></div></div><label class="control-label" for="name">Name</label><input ms-focus="true" class="form-control" id="name" name="name" placeholder="Please enter Office Name" ng-model="ModalOffice.model.name" required></div><div class="row toolbar"><div class="col-xs-12"><button type="submit" class="btn btn-primary pull-right">Save</button> <button type="button" class="btn btn-default pull-right" style="margin-right: 10px" ng-click="ModalOffice.on.close(\'cancel\')">Cancel</button></div></div></form></div></div>');
 }]);
 })();
 
@@ -1689,7 +2093,7 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/views/providers/providerDlg.html',
-    '<div class="modal-fade"><div class="modal-overlay animated zoomIn modify-dialog"><div class="row"><div class="col-xs-10 main-title">{{ ModalProvider.title}}</div><div class="col-xs-2"><i ng-click="ModalProvider.on.close(\'cancel\')" class="icon-cross"></i></div></div><form name="providerForm" role="form" novalidate ng-submit="ModalProvider.on.saveData(providerForm.$valid)"><div class="form-group" ng-class="{\'has-error\': ((providerForm.$submitted || providerForm.name.$touched) && providerForm.name.$invalid),\'has-success\':providerForm.name.$valid}"><div class="errors" ng-messages="providerForm.name.$error" ng-if="providerForm.$submitted || providerForm.name.$touched" ng-messages-include="/views/errors.html"><div class="error" ng-message="name_must_be_unique"><span popover-append-to-body="true" popover-trigger="mouseenter" popover="Provider name already exists. Please provide a Provider name that it\'s not already registered" class="label label-danger">Provider name must be unique</span></div></div><label class="control-label" for="name">Name</label><input ms-focus="true" class="form-control" id="name" name="name" placeholder="Please enter Provider Name" ng-model="ModalProvider.model.name" required></div><div class="form-group" ng-class="{\'has-error\': ((providerForm.$submitted || providerForm.descr.$touched) && providerForm.descr.$invalid),\'has-success\':providerForm.descr.$valid}"><div class="errors" ng-messages="providerForm.descr.$error" ng-if="providerForm.$submitted || providerForm.descr.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="descr">Description</label><input class="form-control" id="descr" name="descr" placeholder="Please enter Provider Description" ng-model="ModalProvider.model.descr" required></div><div class="form-group" ng-class="{\'has-error\': ((providerForm.$submitted || providerForm.phone.$touched) && providerForm.phone.$invalid),\'has-success\':providerForm.phone.$valid}"><div class="errors" ng-messages="providerForm.phone.$error" ng-if="providerForm.$submitted || providerForm.phone.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="phone">Phone</label><input class="form-control" id="phone" name="phone" placeholder="Please enter Provider Phone" ng-model="ModalProvider.model.phone" required></div><div class="form-group" ng-class="{\'has-error\': ((providerForm.$submitted || providerForm.address.$touched) && providerForm.address.$invalid),\'has-success\':providerForm.address.$valid}"><div class="errors" ng-messages="providerForm.address.$error" ng-if="providerForm.$submitted || providerForm.address.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="address">Address</label><input class="form-control" id="address" name="address" placeholder="Please enter Provider Address" ng-model="ModalProvider.model.address" required></div><div class="row toolbar"><div class="col-xs-12"><button type="submit" class="btn btn-primary pull-right">Save</button> <button type="button" class="btn btn-default pull-right" style="margin-right: 10px" ng-click="ModalProvider.on.close(\'cancel\')">Cancel</button></div></div></form></div></div>');
+    '<div class="modal-fade"><div class="modal-overlay animated zoomIn modify-dialog"><div class="row"><div class="col-xs-10 main-title">{{ ModalProvider.title}}</div><div class="col-xs-2"><i ng-click="ModalProvider.on.close(\'cancel\')" class="icon-cross"></i></div></div><form name="providerForm" role="form" novalidate ng-submit="ModalProvider.on.saveData(providerForm.$valid)"><div class="form-group" ng-class="{\'has-error\': ((providerForm.$submitted || providerForm.name.$touched) && providerForm.name.$invalid),\'has-success\':providerForm.name.$valid}"><div class="errors" ng-messages="providerForm.name.$error" ng-if="providerForm.$submitted || providerForm.name.$touched" ng-messages-include="/views/errors.html"><div class="error" ng-message="name_must_be_unique"><span popover-append-to-body="true" popover-trigger="mouseenter" popover="Provider name already exists. Please provide a Provider name that\'s not already registered" class="label label-danger">Provider name must be unique</span></div></div><label class="control-label" for="name">Name</label><input ms-focus="true" class="form-control" id="name" name="name" placeholder="Please enter Provider Name" ng-model="ModalProvider.model.name" required></div><div class="form-group" ng-class="{\'has-error\': ((providerForm.$submitted || providerForm.descr.$touched) && providerForm.descr.$invalid),\'has-success\':providerForm.descr.$valid}"><div class="errors" ng-messages="providerForm.descr.$error" ng-if="providerForm.$submitted || providerForm.descr.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="descr">Description</label><input class="form-control" id="descr" name="descr" placeholder="Please enter Provider Description" ng-model="ModalProvider.model.descr" required></div><div class="form-group" ng-class="{\'has-error\': ((providerForm.$submitted || providerForm.phone.$touched) && providerForm.phone.$invalid),\'has-success\':providerForm.phone.$valid}"><div class="errors" ng-messages="providerForm.phone.$error" ng-if="providerForm.$submitted || providerForm.phone.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="phone">Phone</label><input class="form-control" id="phone" name="phone" placeholder="Please enter Provider Phone" ng-model="ModalProvider.model.phone" required></div><div class="form-group" ng-class="{\'has-error\': ((providerForm.$submitted || providerForm.address.$touched) && providerForm.address.$invalid),\'has-success\':providerForm.address.$valid}"><div class="errors" ng-messages="providerForm.address.$error" ng-if="providerForm.$submitted || providerForm.address.$touched" ng-messages-include="/views/errors.html"></div><label class="control-label" for="address">Address</label><input class="form-control" id="address" name="address" placeholder="Please enter Provider Address" ng-model="ModalProvider.model.address" required></div><div class="row toolbar"><div class="col-xs-12"><button type="submit" class="btn btn-primary pull-right">Save</button> <button type="button" class="btn btn-default pull-right" style="margin-right: 10px" ng-click="ModalProvider.on.close(\'cancel\')">Cancel</button></div></div></form></div></div>');
 }]);
 })();
 

@@ -6,7 +6,7 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('ModalClientCtrl', function ($scope, $rootScope, client, providers, loader, errorService, $timeout, $http, config, close) {
+  .controller('ModalClientCtrl', function ($scope, $rootScope, client, providers, loader, errorService, $timeout, $http, close) {
     'use strict';
     var
       self = this;
