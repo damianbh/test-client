@@ -43,13 +43,13 @@ angular.module('testClientGulp')
         //  return responseOrNewPromise
         //}
         var
-          ModalService = $injector.get('ModalService'),
-          errorService = $injector.get('errorService'),
-          $http = $injector.get('$http'),
-          canClose = (resp.config.loginDlgConf && resp.config.loginDlgConf.canClose);
-        if (_.isUndefined(canClose)) {
-          canClose = true;
-        }
+          //ModalService = $injector.get('ModalService'),
+          errorService = $injector.get('errorService');
+          //$http = $injector.get('$http'),
+        //  canClose = (resp.config.loginDlgConf && resp.config.loginDlgConf.canClose);
+        //if (_.isUndefined(canClose)) {
+        //  canClose = true;
+        //}
         switch (resp.status) {
           //case 401:
           //  return ModalService.showModal({

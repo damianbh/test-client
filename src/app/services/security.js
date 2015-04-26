@@ -19,7 +19,7 @@ angular.module('testClientGulp')
       userData = newData;
     };
 
-    self.getUserData = function () {
+    self.getSecurityData = function () {
       return userData;
     };
 

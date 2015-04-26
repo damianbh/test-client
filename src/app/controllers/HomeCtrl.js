@@ -10,7 +10,7 @@ angular.module('testClientGulp')
     'use strict';
     var
       self = this,
-      roles = security.getUserData().roles || [];
+      roles = security.getSecurityData().roles || [];
 
     self.security = security;
     self.CAS_URL = config.CAS_URL;
@@ -67,7 +67,7 @@ angular.module('testClientGulp')
               }
             },
             message: 'You will be logged out of the Central Authorization Server which means' +
-            ' you will be logged out of this and all other Applications linked to this Authorization Server.'
+            ' your session will be terminated in this and all other Applications linked to Authorization Server.'
           }
         }).then(function (modal) {
           modal.close.then(function (result) {

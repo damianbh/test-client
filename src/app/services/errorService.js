@@ -1,5 +1,5 @@
 angular.module('testClientGulp')
-  .service('errorService', function (ModalService) {
+  .service('errorService', function (ModalService, $injector) {
     'use strict';
 
     var
@@ -90,53 +90,85 @@ angular.module('testClientGulp')
 
     self.showError = function (response, errorExt) {
 
-      //if (response.status === 401) return;
-      var
-        message;
-
-      if (_.isObject(response.data) && response.data.message) {
-        message = response.data.message;
-      } else {
-        if (!_.isUndefined(response.status)) {
-          if (!_.isObject(errorExt)) {
-            errorExt = {};
+      if (response.status === 401) {
+        ModalService.showModal({
+          templateUrl: '/views/modalError.html',
+          controller: 'ModalCtrl',
+          inputs: {
+            title: 'An error has occurred',
+            buttons: {
+              login: {
+                type: 'primary',
+                text: 'Login'
+              },
+              cancel: {
+                type: 'default',
+                text: 'Close'
+              }
+            },
+            message: 'It seems either your session has expired or you have been logged out of the Central Authorization Server.'
           }
-          var
-            codExt = _.extend({}, codes, errorExt);
-          message = codExt[response.status];
-        }
+        }).then(function (modal) {
+          modal.close.then(function (result) {
+            switch (result) {
+              case 'login':
+                $injector.get('routing').go2State('login');
+                break;
 
-      }
+              default:
 
-      if (!message) {
-        message = 'Unknown Error';
-      }
-
-      ModalService.showModal({
-        templateUrl: '/views/modalError.html',
-        controller: 'ModalCtrl',
-        inputs: {
-          title: 'An error has occurred',
-          buttons: {
-            ok: {
-              type: 'primary',
-              text: 'Close'
             }
-          },
-          message: message
-        }
-      }).then(function (modal) {
-        modal.close.then(function (result) {
-          switch (result) {
-            case 'ok':
-
-              break;
-
-            default:
-
-          }
+          });
         });
-      });
+      } else {
+        var
+          message;
+
+        if (_.isObject(response.data) && response.data.message) {
+          message = response.data.message;
+        } else {
+          if (!_.isUndefined(response.status)) {
+            if (!_.isObject(errorExt)) {
+              errorExt = {};
+            }
+            var
+              codExt = _.extend({}, codes, errorExt);
+            message = codExt[response.status];
+          }
+
+        }
+
+        if (!message) {
+          message = 'Unknown Error';
+        }
+
+        ModalService.showModal({
+          templateUrl: '/views/modalError.html',
+          controller: 'ModalCtrl',
+          inputs: {
+            title: 'An error has occurred',
+            buttons: {
+              ok: {
+                type: 'primary',
+                text: 'Close'
+              }
+            },
+            message: message
+          }
+        }).then(function (modal) {
+          modal.close.then(function (result) {
+            switch (result) {
+              case 'ok':
+
+                break;
+
+              default:
+
+            }
+          });
+        });
+      }
+
     };
 
   });

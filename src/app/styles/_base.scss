@@ -425,7 +425,8 @@ $standard-icon-color-active, $standard-text-color-active) {
   //  width: 100%;
   position: absolute;
   height: 3px;
-  background-color: white;
+  z-index: 1;
+  background-color: #c7254e;
   animation: changewidthloader linear 1.5s;
   animation-iteration-count: infinite;
 
@@ -684,7 +685,7 @@ $standard-icon-color-active, $standard-text-color-active) {
 }
 
 .main-header {
-  height: 36px;
+  height: 40px;
   position: relative;
   margin-right: -15px;
   margin-left: -15px;
@@ -692,17 +693,17 @@ $standard-icon-color-active, $standard-text-color-active) {
   white-space: nowrap;
 
   .user-photo {
-    @include border-radius(17px);
+    @include border-radius(18px);
     overflow: hidden;
-    height: 34px;
-    width: 34px;
-    margin: 2px 5px 2px 15px;
+    height: 36px;
+    width: 36px;
+    margin: 3px 5px 3px 15px;
     display: inline-block;
     vertical-align: middle;
     img {
       vertical-align: middle;
-      height: 34px;
-      width: 34px;
+      height: 36px;
+      width: 36px;
     }
   }
   .welcome {
@@ -716,7 +717,7 @@ $standard-icon-color-active, $standard-text-color-active) {
     }
   }
   .icon-cancel-circle {
-    line-height: 35px;
+    line-height: 40px;
     font-size: 25px;
     color: white;
     margin-right: 15px;
@@ -738,24 +739,33 @@ $standard-icon-color-active, $standard-text-color-active) {
 }
 
 .login-page {
+  .margin-top {
+    margin-top: 20px;
+    border-bottom: 1px solid lighten(black, 20%);
+  }
   .title {
-    color: #428bca;
+    color: lighten(black, 20%);
     @include font-bitter;
+  }
+  .margin {
+    margin-top: 40px;
   }
   .lock {
     display: block;
     text-align: center;
     .icon-lock {
-      font-size: 200px;
-      color: #428bca;
+      line-height: 240px;
+      font-size: 150px;
+      //color: #428bca;
+      color: lighten(black, 20%);
     }
   }
   form {
     position: relative;
     //width: 500px;
-    padding: 40px;
+    padding: 25px;
     background: white;
     @include border-radius(5px);
-    border: 1px solid #428bca;
+    border: 1px solid lighten(black, 20%);
   }
 }

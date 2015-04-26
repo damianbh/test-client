@@ -6,7 +6,7 @@
  * provider in the testClientGulp.
  */
 angular.module('testClientGulp')
-  .provider('routing', function ($stateProvider, $locationProvider, $urlRouterProvider) {
+  .provider('routing', function ($stateProvider, $locationProvider, $urlRouterProvider, DEFAULT_STATE) {
     'use strict';
 
     var
@@ -47,7 +47,8 @@ angular.module('testClientGulp')
         name: 'base.home.employees',
         url: '^/employees',
         controller: 'EmployeesCtrl as Employees',
-        templateUrl: '/views/employees/employees.html'
+        templateUrl: '/views/employees/employees.html',
+        roles: ['human_resources']
         //,resolve:{
         //  test: ['$q', '$timeout', function($q, $timeout){
         //    var def = $q.defer();
@@ -62,7 +63,8 @@ angular.module('testClientGulp')
         name: 'base.home.offices',
         url: '^/offices',
         controller: 'OfficesCtrl as Offices',
-        templateUrl: '/views/offices/offices.html'
+        templateUrl: '/views/offices/offices.html',
+        roles: ['director']
 
       },
       clients: {
@@ -86,7 +88,7 @@ angular.module('testClientGulp')
     }
 
     //$locationProvider.hashPrefix('!');
-    $urlRouterProvider.otherwise('/help');
+    $urlRouterProvider.otherwise(DEFAULT_STATE);
 
 
     self.$get = function ($state, loader, $rootScope, ModalService, security) {

@@ -10,13 +10,13 @@ angular.module('testClientGulp', [
   'smart-table',
   'ui.select'
 ])
-  //.constant('DEFAULT_STATE', 'help')
+  .constant('DEFAULT_STATE', 'help')
   .config(function ($httpProvider) {
     'use strict';
     $httpProvider.interceptors.push('httpInterceptor');
-    
+
   })
-  .run(function ($rootScope, routing, security, ModalService, loader) {
+  .run(function ($rootScope, routing, security, ModalService, loader, DEFAULT_STATE) {
     'use strict';
     $rootScope.$on('$stateChangeStart',
       function (event, toState, toParams, fromState, fromParams) {
@@ -27,7 +27,16 @@ angular.module('testClientGulp', [
             event.preventDefault();
             routing.go2State('login');
           } else {
-            loader.nonInvasiveVisible();
+            var
+              roles = security.getSecurityData().roles;
+
+            if (_.isArray(toState.roles) && (_.intersection(roles, toState.roles).length === 0)) {
+              event.preventDefault();
+              routing.go2State(DEFAULT_STATE);
+            } else {
+              loader.nonInvasiveVisible();
+            }
+
           }
         }
       });
