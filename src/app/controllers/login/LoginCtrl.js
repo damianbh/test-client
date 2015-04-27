@@ -23,7 +23,7 @@ angular.module('testClientGulp')
 
         self.saving = true;
         loader.invasiveVisible();
-        return $http.post(config.CAS_URL + '/login', self.model).then(function (resp) {
+        return $http.post(config.CAS_URL + '/login', _.extend({ajaxCall: '1'}, self.model)).then(function (resp) {
           socket.emit('login');
           security.setSecurityData(resp.data);
           return routing.go2State('help');
