@@ -3,12 +3,12 @@ angular.module('testClientGulp')
     'use strict';
     var
       self = this,
-      userData = $security || {};
+      securityData = $security || {};
 
     //self.$promise = $http.get(config.CAS_URL + '/validate', {
     //  doNotHandleErrors: true
     //}).then(function (resp) {
-    //  userData = resp.data;
+    //  securityData = resp.data;
     //}).catch(function (resp) {
     //  if (resp.status !== 401) {
     //    errorService.showError(resp);
@@ -16,14 +16,19 @@ angular.module('testClientGulp')
     //});
 
     self.setSecurityData = function (newData) {
-      userData = newData;
+      securityData = newData;
     };
 
     self.getSecurityData = function () {
-      return userData;
+      return securityData;
     };
 
     self.getTicket = function () {
-      return userData && userData.ticket;
+      return securityData && securityData.ticket;
     };
+
+    self.getSession = function () {
+      return securityData && securityData.session;
+    };
+
   });

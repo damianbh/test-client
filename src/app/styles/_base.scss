@@ -741,7 +741,7 @@ $standard-icon-color-active, $standard-text-color-active) {
 .login-page {
   .margin-top {
     margin-top: 20px;
-    border-bottom: 1px solid lighten(black, 20%);
+    border-bottom: 1px solid darkgray;
   }
   .title {
     color: lighten(black, 20%);
@@ -756,8 +756,7 @@ $standard-icon-color-active, $standard-text-color-active) {
     .icon-lock {
       line-height: 240px;
       font-size: 150px;
-      //color: #428bca;
-      color: lighten(black, 20%);
+      color: darkgray;
     }
   }
   form {
@@ -766,6 +765,6 @@ $standard-icon-color-active, $standard-text-color-active) {
     padding: 25px;
     background: white;
     @include border-radius(5px);
-    border: 1px solid lighten(black, 20%);
+    border: 1px solid darkgray;
   }
 }

@@ -6,7 +6,7 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('LoginCtrl', function ($scope, loader, $http, security, config, routing) {
+  .controller('LoginCtrl', function ($scope, loader, $http, security, config, routing, socket) {
     'use strict';
 
     var
@@ -24,6 +24,7 @@ angular.module('testClientGulp')
         self.saving = true;
         loader.invasiveVisible();
         return $http.post(config.CAS_URL + '/login', self.model).then(function (resp) {
+          socket.emit('login');
           security.setSecurityData(resp.data);
           return routing.go2State('help');
         }).catch(function (resp) {

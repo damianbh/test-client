@@ -6,7 +6,7 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('HomeCtrl', function ($scope, $http, loader, ModalService, security, config) {
+  .controller('HomeCtrl', function ($scope, $http, loader, ModalService, security, config, socket) {
     'use strict';
     var
       self = this,
@@ -77,6 +77,7 @@ angular.module('testClientGulp')
                 $http.get(config.CAS_URL + '/logout').then(
                   function () {
                     loader.invasiveInvisible();
+                    socket.emit('logout');
                     window.location = '/';
                   }
                 );

@@ -16,7 +16,7 @@ angular.module('testClientGulp', [
     $httpProvider.interceptors.push('httpInterceptor');
 
   })
-  .run(function ($rootScope, routing, security, ModalService, loader, DEFAULT_STATE) {
+  .run(function ($rootScope, routing, security, ModalService, loader, DEFAULT_STATE, socket) {
     'use strict';
     $rootScope.$on('$stateChangeStart',
       function (event, toState, toParams, fromState, fromParams) {
@@ -52,6 +52,8 @@ angular.module('testClientGulp', [
         loader.nonInvasiveInvisible();
       }
     );
+
+    socket.init();
   });
 
 (function bootstrap() {
@@ -99,11 +101,16 @@ angular.module('testClientGulp', [
       switch (xhReqSecurity.status) {
         case 200:
           $security = angular.fromJson(xhReqSecurity.responseText);
+          bootstrapApplication();
+          break;
         case 401:
+          $security = {
+            session: angular.fromJson(xhReqSecurity.responseText).session
+          };
           bootstrapApplication();
           break;
         default:
-          alert('Error Communicating with CAS Server. Please check your internet connection and CAS Server status.');
+          alert('Error Communicating with CAS Server. Please check your internet connection and CAS Server status. Also check if this Application is in CAS Server allowed Origins.');
           break;
       }
     };

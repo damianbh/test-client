@@ -86,7 +86,7 @@ angular.module('testClientGulp')
                 }).catch(function (resp) {
                   if (resp.status === 400) {
                     if (_.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR') {
-                      resp.data.message = 'Office cannot be deleted because it has employees assigned';
+                      resp.data.message = 'Office cannot be deleted because it is assigned to an Employee';
                     }
                     errorService.showError(resp);
                   }
