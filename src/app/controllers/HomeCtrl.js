@@ -37,18 +37,6 @@ angular.module('testClientGulp')
       );
     }
 
-    //self.list = [
-    //  {
-    //    state: 'clients',
-    //    iconCls: 'icon-user-tie',
-    //    label: 'Clients'
-    //  }, {
-    //    state: 'providers',
-    //    iconCls: 'icon-truck',
-    //    label: 'Providers'
-    //  }
-    //];
-
     self.on = {
       doLogout: function () {
         ModalService.showModal({

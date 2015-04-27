@@ -1,5 +1,5 @@
 angular.module('testClientGulp')
-  .service('errorService', function (ModalService, $injector) {
+  .service('errorService', function (ModalService, loader) {
     'use strict';
 
     var
@@ -97,9 +97,9 @@ angular.module('testClientGulp')
           inputs: {
             title: 'An error has occurred',
             buttons: {
-              login: {
+              refresh: {
                 type: 'primary',
-                text: 'Login'
+                text: 'Refresh Page'
               },
               cancel: {
                 type: 'default',
@@ -111,8 +111,9 @@ angular.module('testClientGulp')
         }).then(function (modal) {
           modal.close.then(function (result) {
             switch (result) {
-              case 'login':
-                $injector.get('routing').go2State('login');
+              case 'refresh':
+                loader.invasiveVisible();
+                window.location = '/';
                 break;
 
               default:

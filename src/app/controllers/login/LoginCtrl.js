@@ -6,7 +6,7 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('LoginCtrl', function ($scope, loader, $http, security, config, routing, socket) {
+  .controller('LoginCtrl', function ($scope, loader, $http, security, config, routing, socket, ModalService) {
     'use strict';
 
     var
@@ -28,14 +28,40 @@ angular.module('testClientGulp')
           security.setSecurityData(resp.data);
           return routing.go2State('help');
         }).catch(function (resp) {
+          self.model.password = '';
           switch (resp.status) {
             case 400:
-              $scope.loginForm['name'].$setValidity('invalid-credentials', false);
-              if (!$scope.loginForm['name'].$validators['invalid-credentials']) {
-                $scope.loginForm['name'].$validators['invalid-credentials'] = function () {
-                  return true;
-                };
-              }
+              //$scope.loginForm['password'].$setValidity('invalid-credentials', false);
+              //if (!$scope.loginForm['password'].$validators['invalid-credentials']) {
+              //  $scope.loginForm['password'].$validators['invalid-credentials'] = function () {
+              //    return true;
+              //  };
+              //}
+              ModalService.showModal({
+                templateUrl: '/views/modalError.html',
+                controller: 'ModalCtrl',
+                inputs: {
+                  title: 'Invalid Credentials',
+                  buttons: {
+                    ok: {
+                      type: 'primary',
+                      text: 'Close'
+                    }
+                  },
+                  message: 'Please provide a valid combination of User and Password in order to successfully login into the system'
+                }
+              }).then(function (modal) {
+                modal.close.then(function (result) {
+                  switch (result) {
+                    case 'ok':
+
+                      break;
+
+                    default:
+
+                  }
+                });
+              });
               break;
             default:
 

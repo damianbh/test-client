@@ -19,11 +19,6 @@ angular.module('testClientGulp')
         abstract: true,
         controller: 'BaseCtrl as Base',
         templateUrl: '/views/base.html'
-        //, resolve: {
-        //  resolvedSecurity: ['security', function (security) {
-        //    return security.$promise
-        //  }]
-        //}
       },
       login: {
         name: 'base.login',
@@ -66,18 +61,6 @@ angular.module('testClientGulp')
         templateUrl: '/views/offices/offices.html',
         roles: ['director']
 
-      },
-      clients: {
-        name: 'base.home.clients',
-        url: '^/clients',
-        controller: 'ClientsCtrl as Clients',
-        templateUrl: '/views/clients/clients.html'
-      },
-      providers: {
-        name: 'base.home.providers',
-        url: '^/providers',
-        controller: 'ProvidersCtrl as Providers',
-        templateUrl: '/views/providers/providers.html'
       }
     };
 
