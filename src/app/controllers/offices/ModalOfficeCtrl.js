@@ -6,7 +6,7 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('ModalOfficeCtrl', function ($scope, $rootScope, office, loader, errorService, close) {
+  .controller('ModalOfficeCtrl', function ($scope, $rootScope, office, loader, currentForm, close) {
     'use strict';
 
     var
@@ -31,13 +31,10 @@ angular.module('testClientGulp')
 
         self.saving = true;
         loader.invasiveVisible();
+        currentForm.setFrm($scope.officeForm);
         return office.$save().then(function () {
           $rootScope.$broadcast('$saved-office', office, isEdit);
           close('saved');
-        }).catch(function (resp) {
-          if (resp.status === 400) {
-            errorService.formError(resp, $scope.officeForm);
-          }
         }).finally(function () {
           loader.invasiveInvisible();
           self.saving = false;

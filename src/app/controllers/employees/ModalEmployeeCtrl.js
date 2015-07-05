@@ -6,7 +6,7 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('ModalEmployeeCtrl', function ($scope, $rootScope, employee, OfficeModel, loader, errorService, close) {
+  .controller('ModalEmployeeCtrl', function ($scope, $rootScope, employee, OfficeModel, loader, currentForm, close) {
     'use strict';
 
     var
@@ -30,13 +30,10 @@ angular.module('testClientGulp')
         }
         self.saving = true;
         loader.invasiveVisible();
+        currentForm.setFrm($scope.employeeForm);
         return employee.$save().then(function () {
           $rootScope.$broadcast('$saved-employee', employee, isEdit);
           close('saved');
-        }).catch(function (resp) {
-          if (resp.status === 400) {
-            errorService.formError(resp, $scope.employeeForm);
-          }
         }).finally(function () {
           self.saving = false;
           loader.invasiveInvisible();
@@ -52,17 +49,6 @@ angular.module('testClientGulp')
 
         $scope.offices = OfficeModel.query(params);
         return $scope.offices.$promise;
-        //  .catch(function (resp) {
-        //  errorService.showError(resp);
-        //});
-
-
-        //return $http.get(
-        //  'http://maps.googleapis.com/maps/api/geocode/json',
-        //  {params: params}
-        //).then(function(response) {
-        //    $scope.addresses = response.data.results
-        //  });
       }
     };
 

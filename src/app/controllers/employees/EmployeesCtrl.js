@@ -10,27 +10,6 @@ angular.module('testClientGulp')
     'use strict';
 
     var ctrl = this;
-
-    //$resource(
-    //  'http://tizenesmoneyserver.jit.su/History/', {}, {
-    //    get: {
-    //      method: 'GET',
-    //      transformRequest: function (data, headers) {
-    //        headers = {'Content-Type': 'application/json'};
-    //        console.log(data);
-    //        return data;
-    //      },
-    //      transformResponse: function (data, headers) {
-    //        console.log(data);
-    //        return data;
-    //      }
-    //    }
-    //  }
-    //);
-
-    //ctrl.smartTable.displayed = [];
-
-
     $scope.$on('$saved-employee', function (event, employee, isEdit) {
       if (isEdit) {
         var index = _.findIndex(ctrl.smartTable.rowCollection, function (item) {
@@ -45,7 +24,7 @@ angular.module('testClientGulp')
       employee.$isSelected = true;
     });
 
-    ctrl.callServer = _.partial(callServer, {ctrl: ctrl, Resource: EmployeeModel, qf:'firstName,lastName,initials'});
+    ctrl.callServer = _.partial(callServer, {ctrl: ctrl, Resource: EmployeeModel, qf: 'firstName,lastName,initials'});
     ctrl.on = {
       newOptsClick: function () {
         //console.log($scope);
@@ -70,12 +49,12 @@ angular.module('testClientGulp')
             }
           });
         })
-        //  .catch(function (resp) {
-        //  errorService.showError(resp);
-        //})
+          //  .catch(function (resp) {
+          //  errorService.showError(resp);
+          //})
           .finally(function () {
-          loader.invasiveInvisible();
-        });
+            loader.invasiveInvisible();
+          });
 
       },
       deleteOptsClick: function (employee) {
@@ -103,13 +82,9 @@ angular.module('testClientGulp')
                 loader.invasiveVisible();
                 employee.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
-                })
-                //  .catch(function (resp) {
-                //  errorService.showError(resp);
-                //})
-                  .finally(function () {
-                  loader.invasiveInvisible();
-                });
+                }).finally(function () {
+                    loader.invasiveInvisible();
+                  });
                 break;
 
               default:

@@ -83,14 +83,6 @@ angular.module('testClientGulp')
                 loader.invasiveVisible();
                 row.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
-                }).catch(function (resp) {
-                  if (resp.status === 400) {
-                    if (_.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR') {
-                      resp.data.message = 'Office cannot be deleted because it is assigned to an Employee';
-                    }
-                    errorService.showError(resp);
-                  }
-
                 }).finally(function () {
                   loader.invasiveInvisible();
                 });
