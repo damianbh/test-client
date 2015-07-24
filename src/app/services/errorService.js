@@ -1,3 +1,6 @@
+/***** JSLint Config *****/
+/*global angular, _  */
+
 angular.module('testClientGulp')
   .service('errorService', function (ModalService, loader, currentForm) {
     'use strict';

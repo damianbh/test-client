@@ -1,3 +1,6 @@
+/***** JSLint Config *****/
+/*global angular, _  */
+
 angular.module('testClientGulp')
   .directive('stSelectedRow', ['stConfig', function (stConfig) {
     'use strict';

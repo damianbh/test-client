@@ -28,7 +28,6 @@ angular.module('testClientGulp')
               errorService.showError(resp);
             }
             return $q.reject(resp);
-            break;
         }
       }
     };

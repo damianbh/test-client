@@ -1,3 +1,6 @@
+/***** JSLint Config *****/
+/*global angular, _  */
+
 angular.module('testClientGulp')
   .factory('callServer', function (config) {
     'use strict';
@@ -53,7 +56,7 @@ angular.module('testClientGulp')
           ctrl.smartTable.rowCollection[0].$isSelected = true;
         }
 
-      }).$promise.catch(function (resp) {
+      }).$promise.catch(function () {
           ctrl.smartTable.isLoading = false;
           tableState.pagination.numberOfPages = 0;
           //errorService.showError(resp);

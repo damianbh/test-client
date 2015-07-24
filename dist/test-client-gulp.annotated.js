@@ -126,6 +126,10 @@ angular.module('testClientGulp', [
  * # MainCtrl
  * Controller of the testClientGulp
  */
+
+/***** JSLint Config *****/
+/*global angular, _  */
+
 angular.module('testClientGulp')
   .controller('OfficesCtrl', ["$scope", "OfficeModel", "callServer", "loader", "errorService", "ModalService", function ($scope, OfficeModel, callServer, loader, errorService, ModalService) {
     'use strict';
@@ -204,14 +208,6 @@ angular.module('testClientGulp')
                 loader.invasiveVisible();
                 row.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
-                }).catch(function (resp) {
-                  if (resp.status === 400) {
-                    if (_.isObject(resp.data) && resp.data.code === 'CONSTRAINT_ERROR') {
-                      resp.data.message = 'Office cannot be deleted because it is assigned to an Employee';
-                    }
-                    errorService.showError(resp);
-                  }
-
                 }).finally(function () {
                   loader.invasiveInvisible();
                 });
@@ -236,7 +232,7 @@ angular.module('testClientGulp')
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('ModalOfficeCtrl', ["$scope", "$rootScope", "office", "loader", "errorService", "close", function ($scope, $rootScope, office, loader, errorService, close) {
+  .controller('ModalOfficeCtrl', ["$scope", "$rootScope", "office", "loader", "currentForm", "close", function ($scope, $rootScope, office, loader, currentForm, close) {
     'use strict';
 
     var
@@ -261,13 +257,10 @@ angular.module('testClientGulp')
 
         self.saving = true;
         loader.invasiveVisible();
+        currentForm.setFrm($scope.officeForm);
         return office.$save().then(function () {
           $rootScope.$broadcast('$saved-office', office, isEdit);
           close('saved');
-        }).catch(function (resp) {
-          if (resp.status === 400) {
-            errorService.formError(resp, $scope.officeForm);
-          }
         }).finally(function () {
           loader.invasiveInvisible();
           self.saving = false;
@@ -365,12 +358,11 @@ angular.module('testClientGulp')
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('HelpCtrl', ["$scope", "loader", function ($scope, loader) {
+  .controller('HelpCtrl', function () {
     'use strict';
-    var
-      self = this;
 
-  }]);
+
+  });
 
 /**
  * @ngdoc function
@@ -380,7 +372,7 @@ angular.module('testClientGulp')
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('ModalEmployeeCtrl', ["$scope", "$rootScope", "employee", "OfficeModel", "loader", "errorService", "close", function ($scope, $rootScope, employee, OfficeModel, loader, errorService, close) {
+  .controller('ModalEmployeeCtrl', ["$scope", "$rootScope", "employee", "OfficeModel", "loader", "currentForm", "close", function ($scope, $rootScope, employee, OfficeModel, loader, currentForm, close) {
     'use strict';
 
     var
@@ -404,13 +396,10 @@ angular.module('testClientGulp')
         }
         self.saving = true;
         loader.invasiveVisible();
+        currentForm.setFrm($scope.employeeForm);
         return employee.$save().then(function () {
           $rootScope.$broadcast('$saved-employee', employee, isEdit);
           close('saved');
-        }).catch(function (resp) {
-          if (resp.status === 400) {
-            errorService.formError(resp, $scope.employeeForm);
-          }
         }).finally(function () {
           self.saving = false;
           loader.invasiveInvisible();
@@ -426,17 +415,6 @@ angular.module('testClientGulp')
 
         $scope.offices = OfficeModel.query(params);
         return $scope.offices.$promise;
-        //  .catch(function (resp) {
-        //  errorService.showError(resp);
-        //});
-
-
-        //return $http.get(
-        //  'http://maps.googleapis.com/maps/api/geocode/json',
-        //  {params: params}
-        //).then(function(response) {
-        //    $scope.addresses = response.data.results
-        //  });
       }
     };
 
@@ -455,27 +433,6 @@ angular.module('testClientGulp')
     'use strict';
 
     var ctrl = this;
-
-    //$resource(
-    //  'http://tizenesmoneyserver.jit.su/History/', {}, {
-    //    get: {
-    //      method: 'GET',
-    //      transformRequest: function (data, headers) {
-    //        headers = {'Content-Type': 'application/json'};
-    //        console.log(data);
-    //        return data;
-    //      },
-    //      transformResponse: function (data, headers) {
-    //        console.log(data);
-    //        return data;
-    //      }
-    //    }
-    //  }
-    //);
-
-    //ctrl.smartTable.displayed = [];
-
-
     $scope.$on('$saved-employee', function (event, employee, isEdit) {
       if (isEdit) {
         var index = _.findIndex(ctrl.smartTable.rowCollection, function (item) {
@@ -490,7 +447,7 @@ angular.module('testClientGulp')
       employee.$isSelected = true;
     });
 
-    ctrl.callServer = _.partial(callServer, {ctrl: ctrl, Resource: EmployeeModel, qf:'firstName,lastName,initials'});
+    ctrl.callServer = _.partial(callServer, {ctrl: ctrl, Resource: EmployeeModel, qf: 'firstName,lastName,initials'});
     ctrl.on = {
       newOptsClick: function () {
         //console.log($scope);
@@ -515,12 +472,12 @@ angular.module('testClientGulp')
             }
           });
         })
-        //  .catch(function (resp) {
-        //  errorService.showError(resp);
-        //})
+          //  .catch(function (resp) {
+          //  errorService.showError(resp);
+          //})
           .finally(function () {
-          loader.invasiveInvisible();
-        });
+            loader.invasiveInvisible();
+          });
 
       },
       deleteOptsClick: function (employee) {
@@ -548,13 +505,9 @@ angular.module('testClientGulp')
                 loader.invasiveVisible();
                 employee.$delete().then(function () {
                   ctrl.smartTable.api.slice(0, ctrl.smartTable.resultsPerPage);
-                })
-                //  .catch(function (resp) {
-                //  errorService.showError(resp);
-                //})
-                  .finally(function () {
-                  loader.invasiveInvisible();
-                });
+                }).finally(function () {
+                    loader.invasiveInvisible();
+                  });
                 break;
 
               default:
@@ -632,6 +585,8 @@ angular.module('testClientGulp')
     };
   }]);
 
+/***** JSLint Config *****/
+/*global angular, _, $security  */
 angular.module('testClientGulp')
   .service('security', ["$http", "errorService", "config", function ($http, errorService, config) {
     'use strict';
@@ -824,78 +779,25 @@ angular.module('testClientGulp')
         }
         return config;
       },
-
-      // optional method
-      //'requestError': function(rejection) {
-      // do something on error
-      //if (canRecover(rejection)) {
-      //  return responseOrNewPromise
-      //}
-      //return $q.reject(rejection);
-      //},
-
-
-      // optional method
-      //'response': function(response) {
-      // do something on success
-      //return response;
-      //},
-
-      // optional method
       'responseError': function (resp) {
-        // do something on error
-        //if (canRecover(rejection)) {
-        //  return responseOrNewPromise
-        //}
         var
-          //ModalService = $injector.get('ModalService'),
           errorService = $injector.get('errorService');
-          //$http = $injector.get('$http'),
-        //  canClose = (resp.config.loginDlgConf && resp.config.loginDlgConf.canClose);
-        //if (_.isUndefined(canClose)) {
-        //  canClose = true;
-        //}
         switch (resp.status) {
-          //case 401:
-          //  return ModalService.showModal({
-          //    templateUrl: '/views/modalLogin.html',
-          //    controller: 'ModalLoginCtrl as ModalLogin',
-          //
-          //    inputs: {
-          //      canClose: canClose
-          //    }
-          //  }).then(function (modal) {
-          //    return modal.close.then(function (result) {
-          //      switch (result) {
-          //        case 'logged':
-          //          return $http(resp.config);
-          //          break;
-          //
-          //        default:
-          //          return $q.reject(resp);
-          //          break;
-          //      }
-          //    });
-          //  });
-          //  break;
-          case 400:
-            return $q.reject(resp);
-            break;
           default:
             if (!resp.config.doNotHandleErrors) {
               errorService.showError(resp);
             }
             return $q.reject(resp);
-            break;
         }
-
-
       }
     };
   }]);
 
+/***** JSLint Config *****/
+/*global angular, _  */
+
 angular.module('testClientGulp')
-  .service('errorService', ["ModalService", "loader", function (ModalService, loader) {
+  .service('errorService', ["ModalService", "loader", "currentForm", function (ModalService, loader, currentForm) {
     'use strict';
 
     var
@@ -946,48 +848,97 @@ angular.module('testClientGulp')
         505: 'Http Version Not Supported'
       };
 
-    self.formError = function (response, form, fieldTrans, errorExt) {
-      var
-        msg = '';
-
-      if (_.isObject(response.data) && response.data.code === 'VALIDATION_ERROR' &&
-        _.isObject(response.data.errors)) {
-        fieldTrans = _.isObject(fieldTrans) ? fieldTrans : {};
-        _.each(_.keys(response.data.errors), function (key) {
-            _.each(_.keys(response.data.errors[key]), function (errKey) {
-              var
-                validator = function () {
-                  return true;
-                };
-              if (fieldTrans[key]) {
-                key = fieldTrans[key];
-              }
-              if (form[key]) {
-                form[key].$setValidity(errKey, false);
-                if (!form[key].$validators[errKey]) {
-                  form[key].$validators[errKey] = validator;
-                }
-              } else {
-                msg = msg + ' Validation ' + errKey + ' failed to field ' + key;
-              }
-            });
-          }
-        );
-        if (msg !== '') {
-          response.data.message = response.data.message ? response.data.message : '';
-          response.data.message = response.data.message + ' ' + msg;
-          self.showError(response, errorExt);
-        }
-      } else {
-        self.showError(response, errorExt);
-      }
-
-    };
+    //self.formError = function (response, form, fieldTrans, errorExt) {
+    //  var
+    //    msg = '';
+    //
+    //  if (_.isObject(response.data) && response.data.code === 'VALIDATION_ERROR' &&
+    //    _.isObject(response.data.errors)) {
+    //    fieldTrans = _.isObject(fieldTrans) ? fieldTrans : {};
+    //    _.each(_.keys(response.data.errors), function (key) {
+    //        _.each(_.keys(response.data.errors[key]), function (errKey) {
+    //          var
+    //            validator = function () {
+    //              return true;
+    //            };
+    //          if (fieldTrans[key]) {
+    //            key = fieldTrans[key];
+    //          }
+    //          if (form[key]) {
+    //            form[key].$setValidity(errKey, false);
+    //            if (!form[key].$validators[errKey]) {
+    //              form[key].$validators[errKey] = validator;
+    //            }
+    //          } else {
+    //            msg = msg + ' Validation ' + errKey + ' failed to field ' + key;
+    //          }
+    //        });
+    //      }
+    //    );
+    //    if (msg !== '') {
+    //      response.data.message = response.data.message ? response.data.message : '';
+    //      response.data.message = response.data.message + ' ' + msg;
+    //      self.showError(response, errorExt);
+    //    }
+    //  } else {
+    //    self.showError(response, errorExt);
+    //  }
+    //
+    //};
 
     self.showError = function (response, errorExt) {
+      var
+        form,
+        fieldTrans,
+        msg = '';
+
+      if (response.status === 400) {
+        form = currentForm.getFrm();
+        fieldTrans = currentForm.getFieldTrans();
+        if (_.isObject(response.data)) {
+          if (response.data.code === 'VALIDATION_ERROR' &&
+            _.isObject(response.data.errors) && form) {
+            fieldTrans = _.isObject(fieldTrans) ? fieldTrans : {};
+            _.each(_.keys(response.data.errors), function (key) {
+                _.each(_.keys(response.data.errors[key]), function (errKey) {
+                  var
+                    validator = function () {
+                      return true;
+                    };
+                  if (fieldTrans[key]) {
+                    key = fieldTrans[key];
+                  }
+                  if (form[key]) {
+                    form[key].$setValidity(errKey, false);
+                    if (!form[key].$validators[errKey]) {
+                      form[key].$validators[errKey] = validator;
+                    }
+                  } else {
+                    msg = msg + ' Validation ' + errKey + ' failed to field ' + key;
+                  }
+                });
+              }
+            );
+            if (msg !== '') {
+              response.data.message = response.data.message ? response.data.message : '';
+              response.data.message = response.data.message + ' ' + msg;
+            } else {
+              return;
+            }
+          }
+
+          if (response.data.code === 'CONSTRAINT_ERROR') {
+            response.data.message = 'Changes you are currently trying to do are restricted because of a database constraint. Most probably you are trying' +
+              ' to delete data that is being used in another area of the System. More info: ' +
+              response.data.message;
+          }
+        }
+
+
+      }
 
       if (response.status === 401) {
-        ModalService.showModal({
+        return ModalService.showModal({
           templateUrl: '/views/modalError.html',
           controller: 'ModalCtrl',
           inputs: {
@@ -1017,58 +968,80 @@ angular.module('testClientGulp')
             }
           });
         });
-      } else {
-        var
-          message;
-
-        if (_.isObject(response.data) && response.data.message) {
-          message = response.data.message;
-        } else {
-          if (!_.isUndefined(response.status)) {
-            if (!_.isObject(errorExt)) {
-              errorExt = {};
-            }
-            var
-              codExt = _.extend({}, codes, errorExt);
-            message = codExt[response.status];
-          }
-
-        }
-
-        if (!message) {
-          message = 'Unknown Error';
-        }
-
-        ModalService.showModal({
-          templateUrl: '/views/modalError.html',
-          controller: 'ModalCtrl',
-          inputs: {
-            title: 'An error has occurred',
-            buttons: {
-              ok: {
-                type: 'primary',
-                text: 'Close'
-              }
-            },
-            message: message
-          }
-        }).then(function (modal) {
-          modal.close.then(function (result) {
-            switch (result) {
-              case 'ok':
-
-                break;
-
-              default:
-
-            }
-          });
-        });
       }
+      var
+        message;
+
+      if (_.isObject(response.data) && response.data.message) {
+        message = response.data.message;
+      } else {
+        if (!_.isUndefined(response.status)) {
+          if (!_.isObject(errorExt)) {
+            errorExt = {};
+          }
+          var
+            codExt = _.extend({}, codes, errorExt);
+          message = codExt[response.status];
+        }
+
+      }
+
+      if (!message) {
+        message = 'Unknown Error';
+      }
+
+      ModalService.showModal({
+        templateUrl: '/views/modalError.html',
+        controller: 'ModalCtrl',
+        inputs: {
+          title: 'An error has occurred',
+          buttons: {
+            ok: {
+              type: 'primary',
+              text: 'Close'
+            }
+          },
+          message: message
+        }
+      }).then(function (modal) {
+        modal.close.then(function (result) {
+          switch (result) {
+            case 'ok':
+
+              break;
+
+            default:
+
+          }
+        });
+      });
+
 
     };
 
   }]);
+
+angular.module('testClientGulp')
+  .factory('currentForm', function () {
+    'use strict';
+    var currentForm,
+      fieldTrans;
+    return {
+      setFrm: function (newFrm) {
+        currentForm = newFrm;
+      },
+      getFrm: function () {
+        return currentForm;
+      },
+      setFieldTrans: function (newFieldTrans) {
+        fieldTrans = newFieldTrans;
+      },
+      getFieldTrans: function () {
+        return fieldTrans;
+      }
+    };
+
+  });
 
 angular.module('testClientGulp')
   .factory('config', function () {
@@ -1113,6 +1086,9 @@ angular.module('testClientGulp')
 //oReq.addEventListener('load', reqListener, false);
 //oReq.open("get", "/assets/config.json", true);
 //oReq.send();
+
+/***** JSLint Config *****/
+/*global angular, _  */
 
 angular.module('testClientGulp')
   .factory('callServer', ["config", function (config) {
@@ -1169,7 +1145,7 @@ angular.module('testClientGulp')
           ctrl.smartTable.rowCollection[0].$isSelected = true;
         }
 
-      }).$promise.catch(function (resp) {
+      }).$promise.catch(function () {
           ctrl.smartTable.isLoading = false;
           tableState.pagination.numberOfPages = 0;
           //errorService.showError(resp);
@@ -1241,6 +1217,9 @@ angular.module('testClientGulp').filter('propsFilter', function () {
   };
 });
 
+/***** JSLint Config *****/
+/*global angular, _  */
+
 angular.module('testClientGulp')
   .directive('stSelectedRow', ['stConfig', function (stConfig) {
     'use strict';
@@ -1297,7 +1276,7 @@ angular.module('testClientGulp')
         scope.$watch(function () {
           return scope.$eval(attrs.msFocus);
         }, function (newValue) {
-          if (newValue == true) {
+          if (newValue === true) {
             $timeout(function () {
               element[0].focus();
             });
@@ -1335,7 +1314,7 @@ angular.module('testClientGulp')
           function (event, toState, toParams, fromState, fromParams) {
 
             for (var name in routing.routes) {
-              if (routing.routes.hasOwnProperty(name) && (routing.routes[name].name == toState.name)) {
+              if (routing.routes.hasOwnProperty(name) && (routing.routes[name].name === toState.name)) {
                 $scope.itemList.forEach(function (item) {
                   item.active = (item.state === name);
                 });
@@ -1500,7 +1479,7 @@ angular.module('testClientGulp')
 //  Service for showing modal dialogs.
 
 /***** JSLint Config *****/
-/*global angular  */
+/*global angular, _  */
 (function () {
 
   'use strict';
@@ -1801,20 +1780,25 @@ module.run(['$templateCache', function($templateCache) {
   $templateCache.put('/views/help/help.html',
     '<div class="help-tab"><div class="row"><div class="col-xs-12"><span class="help-tab-title">Help</span></div></div><div class="container"><p>This application has two main functionalities, Employees and Offices. Users having <code>"human_resources"</code> role can access Employees and Users having <code>"director"</code> role can access Offices. Here are all posible users and their passwords and roles.</p></div><div class="col-xs-12"><pre class="prettyprint">\n' +
     '        [\n' +
-    '          {\n' +
-    '            user: \'nestor.urquiza@gmail.com\',\n' +
-    '            password: \'nestor\',\n' +
-    '            roles: [\'director\', \'human_resources\']\n' +
+    '          \'nestor.urquiza@gmail.com\': {\n' +
+    '              password: \'nestor\',\n' +
+    '              roles: [\'director\', \'human_resources\']\n' +
     '          },\n' +
-    '          {\n' +
-    '            user: \'damianbh@gmail.com\',\n' +
-    '            password: \'damianbh\',\n' +
-    '            roles: [\'human_resources\', \'manager\']\n' +
+    '          \'lgutierrezvalencia@krfs.com\': {\n' +
+    '              password: \'lilia\',\n' +
+    '              roles: [\'director\', \'human_resources\', \'manager\']\n' +
     '          },\n' +
-    '          {\n' +
-    '            user:\'alejandro@gmail.com\',\n' +
-    '            password: \'alejandro\',\n' +
-    '            roles: [\'director\']\n' +
+    '          \'wmedina@krfs.com\': {\n' +
+    '              password: \'williams\',\n' +
+    '              roles: [\'director\', \'human_resources\', \'manager\']\n' +
+    '          },\n' +
+    '          \'damianbh@gmail.com\': {\n' +
+    '              password: \'damianbh\',\n' +
+    '              roles: [\'human_resources\', \'manager\']\n' +
+    '          },\n' +
+    '          \'alejandro@gmail.com\': {\n' +
+    '              password: \'alejandro\',\n' +
+    '              roles: [\'director\', \'manager\']\n' +
     '          }\n' +
     '        ]\n' +
     '      </pre></div></div>');

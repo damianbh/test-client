@@ -15,7 +15,7 @@ angular.module('testClientGulp')
         scope.$watch(function () {
           return scope.$eval(attrs.msFocus);
         }, function (newValue) {
-          if (newValue == true) {
+          if (newValue === true) {
             $timeout(function () {
               element[0].focus();
             });

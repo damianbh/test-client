@@ -6,9 +6,8 @@
  * Controller of the testClientGulp
  */
 angular.module('testClientGulp')
-  .controller('HelpCtrl', function ($scope, loader) {
+  .controller('HelpCtrl', function () {
     'use strict';
-    var
-      self = this;
+
 
   });

@@ -1,3 +1,5 @@
+/***** JSLint Config *****/
+/*global angular, _, $security  */
 angular.module('testClientGulp')
   .service('security', function ($http, errorService, config) {
     'use strict';

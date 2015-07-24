@@ -26,7 +26,7 @@ angular.module('testClientGulp')
           function (event, toState, toParams, fromState, fromParams) {
 
             for (var name in routing.routes) {
-              if (routing.routes.hasOwnProperty(name) && (routing.routes[name].name == toState.name)) {
+              if (routing.routes.hasOwnProperty(name) && (routing.routes[name].name === toState.name)) {
                 $scope.itemList.forEach(function (item) {
                   item.active = (item.state === name);
                 });

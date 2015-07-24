@@ -3,7 +3,7 @@
 //  Service for showing modal dialogs.
 
 /***** JSLint Config *****/
-/*global angular  */
+/*global angular, _  */
 (function () {
 
   'use strict';

@@ -5,6 +5,10 @@
  * # MainCtrl
  * Controller of the testClientGulp
  */
+
+/***** JSLint Config *****/
+/*global angular, _  */
+
 angular.module('testClientGulp')
   .controller('OfficesCtrl', function ($scope, OfficeModel, callServer, loader, errorService, ModalService) {
     'use strict';
